@@ -1,0 +1,24 @@
+{
+  "files": [
+    "admin-prune.json",
+    "admin-sync.json",
+    "admin-verify.json",
+    "apt-repositories.json",
+    "apt-update.json",
+    "apt-versions.json",
+    "certificates.json",
+    "config-datastore.json",
+    "config-prune.json",
+    "config-tape-backup-job.json",
+    "datastore-gc.json",
+    "datastore-groups.json",
+    "datastore-namespace.json",
+    "datastore-usage.json",
+    "node-status.json",
+    "subscription.json",
+    "tasks.json",
+    "version.json"
+  ],
+  "product": "pbs",
+  "version": "4.0.11-2"
+}

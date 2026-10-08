@@ -1,0 +1,23 @@
+{
+  "cache-stats": {
+    "hits": 14072878,
+    "misses": 2941533
+  },
+  "disk-bytes": 7522416327442,
+  "disk-chunks": 2938018,
+  "duration": 1925,
+  "index-data-bytes": 71362394498981,
+  "index-file-count": 301,
+  "last-run-endtime": 1790807525,
+  "last-run-state": "OK",
+  "next-run": 1790892000,
+  "pending-bytes": 65457728425,
+  "pending-chunks": 32040,
+  "removed-bad": 0,
+  "removed-bytes": 12872453730,
+  "removed-chunks": 6626,
+  "schedule": "daily",
+  "still-bad": 0,
+  "store": "store1",
+  "upid": "UPID:node1:0000041D:00001385:00001592:6ABD8660:garbage_collection:store1:root@pam:"
+}

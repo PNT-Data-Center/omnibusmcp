@@ -1,0 +1,142 @@
+[
+  {
+    "avail": 41246104932352,
+    "estimated-full-date": 1900637526,
+    "gc-status": {
+      "cache-stats": {
+        "hits": 1380547,
+        "misses": 145213
+      },
+      "disk-bytes": 182919501559,
+      "disk-chunks": 145213,
+      "index-data-bytes": 6399501271040,
+      "index-file-count": 120,
+      "pending-bytes": 1739461165,
+      "pending-chunks": 2088,
+      "removed-bad": 0,
+      "removed-bytes": 1948381641,
+      "removed-chunks": 2175,
+      "still-bad": 0,
+      "upid": "UPID:node1:0000041D:00001385:00001590:6ABD8660:garbage_collection:store3:root@pam:"
+    },
+    "history": "\u003cremoved\u003e",
+    "history-delta": 1800,
+    "history-start": 1788246870,
+    "mount-status": "nonremovable",
+    "store": "store3",
+    "total": 49999334322176,
+    "used": 8753229389824
+  },
+  {
+    "avail": 41246104932352,
+    "estimated-full-date": 1900637526,
+    "gc-status": {
+      "cache-stats": {
+        "hits": 0,
+        "misses": 0
+      },
+      "disk-bytes": 159,
+      "disk-chunks": 1,
+      "index-data-bytes": 0,
+      "index-file-count": 0,
+      "pending-bytes": 0,
+      "pending-chunks": 0,
+      "removed-bad": 0,
+      "removed-bytes": 0,
+      "removed-chunks": 0,
+      "still-bad": 0,
+      "upid": "UPID:node1:0000041D:00001385:00001591:6ABD8660:garbage_collection:store4:root@pam:"
+    },
+    "history": "\u003cremoved\u003e",
+    "history-delta": 1800,
+    "history-start": 1788246870,
+    "mount-status": "nonremovable",
+    "store": "store4",
+    "total": 49999334322176,
+    "used": 8753229389824
+  },
+  {
+    "avail": 9273629614080,
+    "estimated-full-date": 1077036711,
+    "gc-status": {
+      "cache-stats": {
+        "hits": 16248034,
+        "misses": 1293938
+      },
+      "disk-bytes": 2429697871369,
+      "disk-chunks": 1293936,
+      "index-data-bytes": 73576158724096,
+      "index-file-count": 372,
+      "pending-bytes": 60794713278,
+      "pending-chunks": 36785,
+      "removed-bad": 0,
+      "removed-bytes": 63579294285,
+      "removed-chunks": 38345,
+      "still-bad": 0,
+      "upid": "UPID:node1:0000041D:00001385:00001593:6ABD8660:garbage_collection:store2:root@pam:"
+    },
+    "history": "\u003cremoved\u003e",
+    "history-delta": 1800,
+    "history-start": 1788246870,
+    "mount-status": "nonremovable",
+    "store": "store2",
+    "total": 11998536400896,
+    "used": 2724906786816
+  },
+  {
+    "avail": 41246104932352,
+    "estimated-full-date": 1900637526,
+    "gc-status": {
+      "cache-stats": {
+        "hits": 14072878,
+        "misses": 2941533
+      },
+      "disk-bytes": 7522416327442,
+      "disk-chunks": 2938018,
+      "index-data-bytes": 71362394498981,
+      "index-file-count": 301,
+      "pending-bytes": 65457728425,
+      "pending-chunks": 32040,
+      "removed-bad": 0,
+      "removed-bytes": 12872453730,
+      "removed-chunks": 6626,
+      "still-bad": 0,
+      "upid": "UPID:node1:0000041D:00001385:00001592:6ABD8660:garbage_collection:store1:root@pam:"
+    },
+    "history": "\u003cremoved\u003e",
+    "history-delta": 1800,
+    "history-start": 1788246870,
+    "mount-status": "nonremovable",
+    "store": "store1",
+    "total": 49999334322176,
+    "used": 8753229389824
+  },
+  {
+    "avail": 41246104932352,
+    "estimated-full-date": 1900637526,
+    "gc-status": {
+      "cache-stats": {
+        "hits": 0,
+        "misses": 0
+      },
+      "disk-bytes": 159,
+      "disk-chunks": 1,
+      "index-data-bytes": 0,
+      "index-file-count": 0,
+      "pending-bytes": 0,
+      "pending-chunks": 0,
+      "removed-bad": 0,
+      "removed-bytes": 0,
+      "removed-chunks": 0,
+      "still-bad": 0,
+      "upid": "UPID:node1:0000041D:00001385:0000158F:6ABD8660:garbage_collection:store5:root@pam:"
+    },
+    "history": "\u003cremoved\u003e",
+    "history-delta": 1800,
+    "history-start": 1788246870,
+    "mount-status": "nonremovable",
+    "store": "store5",
+    "total": 49999334322176,
+    "used": 8753229389824
+  }
+]

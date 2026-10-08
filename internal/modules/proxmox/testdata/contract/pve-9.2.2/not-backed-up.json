@@ -1,0 +1,37 @@
+[
+  {
+    "name": "name1",
+    "type": "qemu",
+    "vmid": 101
+  },
+  {
+    "name": "name2",
+    "type": "qemu",
+    "vmid": 103
+  },
+  {
+    "name": "name3",
+    "type": "qemu",
+    "vmid": 9003
+  },
+  {
+    "name": "name4",
+    "type": "qemu",
+    "vmid": 9002
+  },
+  {
+    "name": "name5",
+    "type": "qemu",
+    "vmid": 9001
+  },
+  {
+    "name": "name6",
+    "type": "qemu",
+    "vmid": 100
+  },
+  {
+    "name": "name7",
+    "type": "qemu",
+    "vmid": 200
+  }
+]

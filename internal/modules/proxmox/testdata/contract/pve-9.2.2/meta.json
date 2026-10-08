@@ -1,0 +1,15 @@
+{
+  "files": [
+    "apt-repositories.json",
+    "apt-update.json",
+    "cluster-backup.json",
+    "cluster-ha-status.json",
+    "cluster-resources.json",
+    "cluster-status.json",
+    "node-status.json",
+    "node-tasks.json",
+    "not-backed-up.json"
+  ],
+  "product": "pve",
+  "version": "9.2.2"
+}

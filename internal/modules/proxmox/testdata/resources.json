@@ -1,0 +1,10 @@
+[
+ {"id":"node/pve1","type":"node","node":"pve1","status":"online","cpu":0.02,"maxcpu":8,"mem":4000000000,"maxmem":32000000000,"uptime":86400},
+ {"id":"qemu/100","type":"qemu","node":"pve1","vmid":100,"name":"web","status":"running","cpu":0.125,"maxcpu":2,"mem":1073741824,"maxmem":2147483648,"maxdisk":34359738368,"uptime":3600,"template":0,"tags":"prod"},
+ {"id":"qemu/101","type":"qemu","node":"pve1","vmid":101,"name":"db","status":"stopped","maxcpu":4,"mem":0,"maxmem":8589934592,"maxdisk":107374182400,"uptime":0,"template":0},
+ {"id":"qemu/9000","type":"qemu","node":"pve1","vmid":9000,"name":"tpl","status":"stopped","maxcpu":1,"maxmem":1073741824,"maxdisk":10737418240,"template":1},
+ {"id":"lxc/200","type":"lxc","node":"pve1","vmid":200,"name":"dns","status":"running","cpu":0.01,"maxcpu":1,"mem":134217728,"maxmem":536870912,"maxdisk":8589934592,"uptime":7200,"template":0,"hastate":"started"},
+ {"id":"storage/pve1/local","type":"storage","node":"pve1","storage":"local","plugintype":"dir","status":"available","shared":0,"content":"iso,backup","disk":10000000000,"maxdisk":100000000000},
+ {"id":"storage/pve1/local-lvm","type":"storage","node":"pve1","storage":"local-lvm","plugintype":"lvmthin","status":"available","shared":0,"content":"images,rootdir","disk":88000000000,"maxdisk":100000000000},
+ {"id":"storage/pve1/nfs","type":"storage","node":"pve1","storage":"nfs","plugintype":"nfs","status":"unknown","shared":1,"content":"backup"}
+]

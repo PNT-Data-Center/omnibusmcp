@@ -1,0 +1,26 @@
+[
+  {
+    "comment": "comment1",
+    "id": "v-f857a0a3-6dc7",
+    "ignore-verified": false,
+    "last-run-endtime": 1790528379,
+    "last-run-state": "OK",
+    "last-run-upid": "UPID:node1:0000041D:00001385:000013AE:6AB827C4:verificationjob:store1\\x3av\\x2df857a0a3\\x2d6dc7:root@pam:",
+    "next-run": 1791058500,
+    "ns": "",
+    "schedule": "sat 22:15",
+    "store": "store1"
+  },
+  {
+    "comment": "comment1",
+    "id": "v-d3b913be-851c",
+    "ignore-verified": false,
+    "last-run-endtime": 1790449073,
+    "last-run-state": "OK",
+    "last-run-upid": "UPID:node1:0000041D:00001385:00001353:6AB7EF84:verificationjob:store2\\x3av\\x2dd3b913be\\x2d851c:root@pam:",
+    "next-run": 1791044100,
+    "ns": "",
+    "schedule": "sat 18:15",
+    "store": "store2"
+  }
+]

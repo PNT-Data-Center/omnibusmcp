@@ -1,0 +1,23 @@
+[
+  {
+    "Command": "\"/docker-entrypoint.sh name1 -g 'daemon off;'\"",
+    "CreatedAt": "2026-09-29 09:29:42 +0200 CEST",
+    "HealthStatus": "none",
+    "ID": "7005482f6c9a248323e1b826ffaa6ab01c9997e73eecb11f3bd2e3d53a0aaac6",
+    "Image": "name1",
+    "Labels": "maintainer=NGINX Docker Maintainers \u003cadmin@example.org\u003e",
+    "LocalVolumes": "0",
+    "Mounts": "",
+    "Names": "name1",
+    "Networks": "bridge",
+    "Platform": {
+      "architecture": "amd64",
+      "os": "linux"
+    },
+    "Ports": "80/tcp",
+    "RunningFor": "2 days ago",
+    "Size": "81.9kB (virtual 175MB)",
+    "State": "running",
+    "Status": "Up 2 days"
+  }
+]

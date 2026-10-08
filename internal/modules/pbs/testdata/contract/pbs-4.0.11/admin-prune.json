@@ -1,0 +1,38 @@
+[
+  {
+    "id": "default-store4-cef2a260-af7",
+    "next-run": 1765407600,
+    "schedule": "daily",
+    "store": "store4"
+  },
+  {
+    "id": "default-store5-e9deffd3-2801-",
+    "next-run": 1765407600,
+    "schedule": "daily",
+    "store": "store5"
+  },
+  {
+    "id": "default-store2-bac88cb1-59",
+    "next-run": 1765407600,
+    "schedule": "daily",
+    "store": "store2"
+  },
+  {
+    "id": "default-store6-353864b0-106c-404e-9",
+    "next-run": 1764025200,
+    "schedule": "daily",
+    "store": "store6"
+  },
+  {
+    "id": "default-store1-a5fef12c-2a",
+    "next-run": 1765407600,
+    "schedule": "daily",
+    "store": "store1"
+  },
+  {
+    "id": "default-store3-c72eebc0-3743-4",
+    "next-run": 1768345200,
+    "schedule": "daily",
+    "store": "store3"
+  }
+]

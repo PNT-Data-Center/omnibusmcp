@@ -1,0 +1,389 @@
+{
+  "digest": "\u003cremoved\u003e",
+  "errors": [],
+  "files": [
+    {
+      "digest": "\u003cremoved\u003e",
+      "file-type": "list",
+      "path": "/etc/apt/sources.list",
+      "repositories": []
+    },
+    {
+      "digest": "\u003cremoved\u003e",
+      "file-type": "list",
+      "path": "/etc/apt/sources.list.d/vendor1-tools.list",
+      "repositories": [
+        {
+          "Comment": " Vendor1 tools repository\n",
+          "Components": [
+            "main"
+          ],
+          "Enabled": true,
+          "FileType": "list",
+          "Options": [
+            {
+              "Key": "arch",
+              "Values": [
+                "all"
+              ]
+            }
+          ],
+          "Suites": [
+            "trixie"
+          ],
+          "Types": [
+            "deb"
+          ],
+          "URIs": [
+            "https://vendor1.example.com/vendor1-tools/debian-ubuntu"
+          ]
+        },
+        {
+          "Components": [
+            "main"
+          ],
+          "Enabled": true,
+          "FileType": "list",
+          "Suites": [
+            "trixie"
+          ],
+          "Types": [
+            "deb-src"
+          ],
+          "URIs": [
+            "https://vendor1.example.com/vendor1-tools/debian-ubuntu"
+          ]
+        }
+      ]
+    },
+    {
+      "digest": "\u003cremoved\u003e",
+      "file-type": "sources",
+      "path": "/etc/apt/sources.list.d/debian.sources",
+      "repositories": [
+        {
+          "Components": [
+            "main",
+            "contrib",
+            "non-free-firmware"
+          ],
+          "Enabled": true,
+          "FileType": "sources",
+          "Options": [
+            {
+              "Key": "Signed-By",
+              "Values": [
+                "/usr/share/keyrings/debian-archive-keyring.gpg"
+              ]
+            }
+          ],
+          "Suites": [
+            "trixie",
+            "trixie-updates"
+          ],
+          "Types": [
+            "deb"
+          ],
+          "URIs": [
+            "http://deb.debian.org/debian/"
+          ]
+        },
+        {
+          "Components": [
+            "main",
+            "contrib",
+            "non-free-firmware"
+          ],
+          "Enabled": true,
+          "FileType": "sources",
+          "Options": [
+            {
+              "Key": "Signed-By",
+              "Values": [
+                "/usr/share/keyrings/debian-archive-keyring.gpg"
+              ]
+            }
+          ],
+          "Suites": [
+            "trixie-security"
+          ],
+          "Types": [
+            "deb"
+          ],
+          "URIs": [
+            "http://security.debian.org/debian-security/"
+          ]
+        }
+      ]
+    },
+    {
+      "digest": "\u003cremoved\u003e",
+      "file-type": "list",
+      "path": "/etc/apt/sources.list.d/vendor1.list",
+      "repositories": [
+        {
+          "Comment": " Vendor1 main repository\n",
+          "Components": [
+            "main"
+          ],
+          "Enabled": true,
+          "FileType": "list",
+          "Suites": [
+            "trixie"
+          ],
+          "Types": [
+            "deb"
+          ],
+          "URIs": [
+            "https://vendor1.example.com/vendor1/7.4/description2/debian"
+          ]
+        },
+        {
+          "Components": [
+            "main"
+          ],
+          "Enabled": true,
+          "FileType": "list",
+          "Suites": [
+            "trixie"
+          ],
+          "Types": [
+            "deb-src"
+          ],
+          "URIs": [
+            "https://vendor1.example.com/vendor1/7.4/description2/debian"
+          ]
+        }
+      ]
+    },
+    {
+      "digest": "\u003cremoved\u003e",
+      "file-type": "list",
+      "path": "/etc/apt/sources.list.d/vendor2.list",
+      "repositories": [
+        {
+          "Components": [
+            "main"
+          ],
+          "Enabled": true,
+          "FileType": "list",
+          "Suites": [
+            "bookworm"
+          ],
+          "Types": [
+            "deb"
+          ],
+          "URIs": [
+            "http://vendor2.example.com/debian"
+          ]
+        }
+      ]
+    },
+    {
+      "digest": "\u003cremoved\u003e",
+      "file-type": "list",
+      "path": "/etc/apt/sources.list.d/vendor3.list",
+      "repositories": [
+        {
+          "Components": [
+            "main"
+          ],
+          "Enabled": true,
+          "FileType": "list",
+          "Options": [
+            {
+              "Key": "signed-by",
+              "Values": [
+                "/etc/apt/keyrings/vendor3-keyring.gpg"
+              ]
+            }
+          ],
+          "Suites": [
+            "description2"
+          ],
+          "Types": [
+            "deb"
+          ],
+          "URIs": [
+            "http://vendor3.example.com/apt/"
+          ]
+        }
+      ]
+    },
+    {
+      "digest": "\u003cremoved\u003e",
+      "file-type": "list",
+      "path": "/etc/apt/sources.list.d/vendor1-undescription2.list",
+      "repositories": [
+        {
+          "Comment": " Vendor1 undescription2 repository\n",
+          "Components": [
+            "main"
+          ],
+          "Enabled": false,
+          "FileType": "list",
+          "Suites": [
+            "trixie"
+          ],
+          "Types": [
+            "deb"
+          ],
+          "URIs": [
+            "https://vendor1.example.com/vendor1/7.4/undescription2/debian"
+          ]
+        },
+        {
+          "Components": [
+            "main"
+          ],
+          "Enabled": false,
+          "FileType": "list",
+          "Suites": [
+            "trixie"
+          ],
+          "Types": [
+            "deb-src"
+          ],
+          "URIs": [
+            "https://vendor1.example.com/vendor1/7.4/undescription2/debian"
+          ]
+        }
+      ]
+    },
+    {
+      "digest": "\u003cremoved\u003e",
+      "file-type": "list",
+      "path": "/etc/apt/sources.list.d/vendor1-release.list",
+      "repositories": [
+        {
+          "Comment": " Vendor1 release repository\n",
+          "Components": [
+            "main"
+          ],
+          "Enabled": true,
+          "FileType": "list",
+          "Options": [
+            {
+              "Key": "arch",
+              "Values": [
+                "all"
+              ]
+            }
+          ],
+          "Suites": [
+            "trixie"
+          ],
+          "Types": [
+            "deb"
+          ],
+          "URIs": [
+            "https://vendor1.example.com/vendor1/7.4/release/debian"
+          ]
+        },
+        {
+          "Components": [
+            "main"
+          ],
+          "Enabled": true,
+          "FileType": "list",
+          "Suites": [
+            "trixie"
+          ],
+          "Types": [
+            "deb-src"
+          ],
+          "URIs": [
+            "https://vendor1.example.com/vendor1/7.4/release/debian"
+          ]
+        }
+      ]
+    }
+  ],
+  "infos": [
+    {
+      "index": 0,
+      "kind": "origin",
+      "message": "vendor1",
+      "path": "/etc/apt/sources.list.d/vendor1-tools.list"
+    },
+    {
+      "index": 1,
+      "kind": "origin",
+      "message": "vendor1",
+      "path": "/etc/apt/sources.list.d/vendor1-tools.list"
+    },
+    {
+      "index": 0,
+      "kind": "origin",
+      "message": "Debian",
+      "path": "/etc/apt/sources.list.d/debian.sources"
+    },
+    {
+      "index": 1,
+      "kind": "origin",
+      "message": "Debian",
+      "path": "/etc/apt/sources.list.d/debian.sources"
+    },
+    {
+      "index": 0,
+      "kind": "origin",
+      "message": "Vendor1",
+      "path": "/etc/apt/sources.list.d/vendor1.list"
+    },
+    {
+      "index": 1,
+      "kind": "origin",
+      "message": "Vendor1",
+      "path": "/etc/apt/sources.list.d/vendor1.list"
+    },
+    {
+      "index": 0,
+      "kind": "warning",
+      "message": "old suite 'bookworm' configured!",
+      "path": "/etc/apt/sources.list.d/vendor2.list",
+      "property": "Suites"
+    },
+    {
+      "index": 0,
+      "kind": "origin",
+      "message": "vendor2.example.com",
+      "path": "/etc/apt/sources.list.d/vendor2.list"
+    },
+    {
+      "index": 0,
+      "kind": "warning",
+      "message": "use the name of the description2 distribution instead of 'description2'!",
+      "path": "/etc/apt/sources.list.d/vendor3.list",
+      "property": "Suites"
+    },
+    {
+      "index": 0,
+      "kind": "origin",
+      "message": "Vendor1",
+      "path": "/etc/apt/sources.list.d/vendor1-release.list"
+    },
+    {
+      "index": 1,
+      "kind": "origin",
+      "message": "Vendor1",
+      "path": "/etc/apt/sources.list.d/vendor1-release.list"
+    }
+  ],
+  "standard-repos": [
+    {
+      "description": "description1, description2, description3, description4",
+      "handle": "enterprise",
+      "name": "name1"
+    },
+    {
+      "description": "description5",
+      "handle": "no-subscription",
+      "name": "name2"
+    },
+    {
+      "description": "description6",
+      "handle": "test",
+      "name": "name3"
+    }
+  ]
+}

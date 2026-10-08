@@ -1,0 +1,18 @@
+[
+  {
+    "filename": "proxy.pem",
+    "fingerprint": "\u003cremoved\u003e",
+    "issuer": "O = Proxmox Backup Server, OU = 00000000-0000-0000-0000-000000000002, CN = node1.example.org",
+    "notafter": 33299996702,
+    "notbefore": 1763996702,
+    "pem": "\u003cremoved\u003e",
+    "public-key-bits": 4096,
+    "public-key-type": "rsaEncryption",
+    "san": [
+      "localhost",
+      "node1",
+      "node1.example.org"
+    ],
+    "subject": "O = Proxmox Backup Server, OU = 00000000-0000-0000-0000-000000000002, CN = node1.example.org"
+  }
+]

@@ -1,0 +1,12 @@
+[
+  {
+    "id": "node/ai",
+    "ip": "192.0.2.11",
+    "level": "",
+    "local": 1,
+    "name": "node1",
+    "nodeid": 0,
+    "online": 1,
+    "type": "node"
+  }
+]

@@ -1,0 +1,44 @@
+{
+  "boot-info": {
+    "mode": "efi",
+    "secureboot": false
+  },
+  "cpu": 0.0240985795799441,
+  "cpuinfo": {
+    "cpus": 24,
+    "model": "Intel(R) Xeon(R) CPU E5-2620 v2 @ 2.10GHz",
+    "sockets": 2
+  },
+  "current-kernel": {
+    "machine": "x86_64",
+    "release": "6.14.8-2-pve",
+    "sysname": "Linux",
+    "version": "#1 SMP PREEMPT_DYNAMIC PMX 6.14.8-2 (2025-07-22T10:04Z)"
+  },
+  "info": {
+    "fingerprint": "\u003cremoved\u003e"
+  },
+  "kversion": "Linux 6.14.8-2-pve #1 SMP PREEMPT_DYNAMIC PMX 6.14.8-2 (2025-07-22T10:04Z)",
+  "loadavg": [
+    0.55,
+    0.68,
+    0.68
+  ],
+  "memory": {
+    "free": 11254771712,
+    "total": 33621983232,
+    "used": 6144241664
+  },
+  "root": {
+    "avail": 414793281536,
+    "total": 443797094400,
+    "used": 6384979968
+  },
+  "swap": {
+    "free": 8419094528,
+    "total": 8589930496,
+    "used": 170835968
+  },
+  "uptime": 4407978,
+  "wait": 0.00006944444444444444
+}

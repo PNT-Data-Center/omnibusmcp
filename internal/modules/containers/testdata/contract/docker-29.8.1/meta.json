@@ -1,0 +1,15 @@
+{
+  "files": [
+    "events.json",
+    "images.json",
+    "info.json",
+    "inspect.json",
+    "network-inspect.json",
+    "ps.json",
+    "stats.json",
+    "system-df.json",
+    "volumes.json"
+  ],
+  "product": "docker",
+  "version": "29.8.1"
+}

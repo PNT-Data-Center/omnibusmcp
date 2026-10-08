@@ -1,0 +1,180 @@
+[
+  {
+    "Arch": "amd64",
+    "Description": "Proxmox Backup Server meta package\n This is a meta package which will install everything needed to run a\n Proxmox Backup server. This package also depends on the latest\n available Proxmox kernel.",
+    "ExtraInfo": "running kernel: 6.14.8-2-pve",
+    "OldVersion": "4.0.0",
+    "Origin": "unknown",
+    "Package": "proxmox-backup",
+    "Priority": "optional",
+    "Section": "admin",
+    "Title": "Proxmox Backup Server meta package",
+    "Version": "4.0.0"
+  },
+  {
+    "Arch": "amd64",
+    "Description": "Proxmox Backup Server daemon with tools and GUI\n This package contains the Proxmox Backup Server daemons and related\n tools. This includes a web-based graphical user interface.",
+    "ExtraInfo": "running version: 4.0.11",
+    "OldVersion": "4.0.11-2",
+    "Origin": "unknown",
+    "Package": "proxmox-backup-server",
+    "Priority": "optional",
+    "Section": "admin",
+    "Title": "Proxmox Backup Server daemon with tools and GUI",
+    "Version": "4.0.11-2"
+  },
+  {
+    "Arch": "amd64",
+    "Description": "Function for various kernel maintenance tasks.\n This package includes kernel-hooks for marking certain kernels as\n NeverAutoRemove and helpers for systemd-boot",
+    "OldVersion": "9.0.3",
+    "Origin": "unknown",
+    "Package": "proxmox-kernel-helper",
+    "Priority": "optional",
+    "Section": "admin",
+    "Title": "Function for various kernel maintenance tasks.",
+    "Version": "9.0.3"
+  },
+  {
+    "Arch": "amd64",
+    "Description": "Proxmox Kernel Image (signed)\n This package contains the linux kernel and initial ramdisk used for booting\n .\n This package contains the kernel image signed by the Proxmox Secure Boot CA.",
+    "OldVersion": "6.14.8-2",
+    "Origin": "unknown",
+    "Package": "proxmox-kernel-6.14.8-2-pve-signed",
+    "Priority": "optional",
+    "Section": "admin",
+    "Title": "Proxmox Kernel Image (signed)",
+    "Version": "6.14.8-2"
+  },
+  {
+    "Arch": "amd64",
+    "Description": "Latest Proxmox Kernel Image\n This is a metapackage which will install the latest available\n proxmox kernel from the 6.14 series.",
+    "OldVersion": "6.14.8-2",
+    "Origin": "unknown",
+    "Package": "proxmox-kernel-6.14",
+    "Priority": "optional",
+    "Section": "admin",
+    "Title": "Latest Proxmox Kernel Image",
+    "Version": "6.14.8-2"
+  },
+  {
+    "Arch": "amd64",
+    "Description": "Network Interface Management tool similar to ifupdown\n ifupdown2 is ifupdown re-written in Python. It replaces ifupdown and provides\n the same user interface as ifupdown for network interface configuration.\n Like ifupdown, ifupdown2 is a high level tool to configure (or, respectively\n deconfigure) network interfaces based on interface definitions in\n /etc/network/interfaces. It is capable of detecting network interface\n dependencies and comes with several new features which are available as\n new command options to ifup/ifdown/ifquery commands. It also comes with a new\n command ifreload to reload interface configuration with minimum\n disruption. Most commands are also capable of input and output in JSON format.\n It is backward compatible with ifupdown /etc/network/interfaces format and\n supports newer simplified format. It also supports interface templates with\n python-mako for large scale interface deployments. See\n /usr/share/doc/ifupdown2/README.rst for details about ifupdown2. Examples\n are available under /usr/share/doc/ifupdown2/examples.",
+    "OldVersion": "3.3.0-1+pmx9",
+    "Origin": "unknown",
+    "Package": "ifupdown2",
+    "Priority": "optional",
+    "Section": "admin",
+    "Title": "Network Interface Management tool similar to ifupdown",
+    "Version": "3.3.0-1+pmx9"
+  },
+  {
+    "Arch": "amd64",
+    "Description": "cross-browser JavaScript library\n Ext JS is a cross-browser JavaScript library for building rich internet\n applications.",
+    "OldVersion": "7.0.0-5",
+    "Origin": "unknown",
+    "Package": "libjs-extjs",
+    "Priority": "optional",
+    "Section": "web",
+    "Title": "cross-browser JavaScript library",
+    "Version": "7.0.0-5"
+  },
+  {
+    "Arch": "amd64",
+    "Description": "Proxmox Backup Documentation\n This package contains the Proxmox Backup Documentation files.",
+    "OldVersion": "4.0.11-2",
+    "Origin": "unknown",
+    "Package": "proxmox-backup-docs",
+    "Priority": "optional",
+    "Section": "doc",
+    "Title": "Proxmox Backup Documentation",
+    "Version": "4.0.11-2"
+  },
+  {
+    "Arch": "amd64",
+    "Description": "Proxmox Backup Client tools\n This package contains the Proxmox Backup client, which provides a\n simple command line tool to create and restore backups.",
+    "OldVersion": "4.0.11-1",
+    "Origin": "unknown",
+    "Package": "proxmox-backup-client",
+    "Priority": "optional",
+    "Section": "admin",
+    "Title": "Proxmox Backup Client tools",
+    "Version": "4.0.11-1"
+  },
+  {
+    "Arch": "amd64",
+    "Description": "Proxmox mail forward helper\n This package contains the Proxmox mail forward helper. It forwards mails to\n the address(es) of the root@pam user in Proxmox Backup Server and Proxmox VE.",
+    "OldVersion": "1.0.2",
+    "Origin": "unknown",
+    "Package": "proxmox-mail-forward",
+    "Priority": "optional",
+    "Section": "rust",
+    "Title": "Proxmox mail forward helper",
+    "Version": "1.0.2"
+  },
+  {
+    "Arch": "amd64",
+    "Description": "Minimal systemd Journal Reader\n A minimal application to read the last X lines of the systemd journal or the\n last X lines before a cursor.",
+    "OldVersion": "1.6",
+    "Origin": "unknown",
+    "Package": "proxmox-mini-journalreader",
+    "Priority": "optional",
+    "Section": "admin",
+    "Title": "Minimal systemd Journal Reader",
+    "Version": "1.6"
+  },
+  {
+    "Arch": "amd64",
+    "Description": "Proxmox offline repository mirror and subscription key manager helper\n This package contains the proxmox-offline-mirror-helper binary for managing\n Proxmox offline APT repositories and subscription keys on Proxmox offline\n systems.",
+    "OldVersion": "0.7.0",
+    "Origin": "unknown",
+    "Package": "proxmox-offline-mirror-helper",
+    "Priority": "optional",
+    "Section": "admin",
+    "Title": "Proxmox offline repository mirror and subscription key manager helper",
+    "Version": "0.7.0"
+  },
+  {
+    "Arch": "amd64",
+    "Description": "Core Widgets and ExtJS Helper Classes for Proxmox Web UIs\n The base framework providing widgets, models, and general utilities for the\n ExtJS based Web UIs of various Proxmox projects",
+    "OldVersion": "5.0.5",
+    "Origin": "unknown",
+    "Package": "proxmox-widget-toolkit",
+    "Priority": "optional",
+    "Section": "web",
+    "Title": "Core Widgets and ExtJS Helper Classes for Proxmox Web UIs",
+    "Version": "5.0.5"
+  },
+  {
+    "Arch": "amd64",
+    "Description": "HTML/TypeScript based fully-featured terminal for Proxmox projects\n Provides the xterm.js frontend for the terminal feature in Proxmox projects'\n web UI's, like for host administration or Proxmox VE containers shells.",
+    "OldVersion": "5.5.0-2",
+    "Origin": "unknown",
+    "Package": "pve-xtermjs",
+    "Priority": "optional",
+    "Section": "admin",
+    "Title": "HTML/TypeScript based fully-featured terminal for Proxmox projects",
+    "Version": "5.5.0-2"
+  },
+  {
+    "Arch": "amd64",
+    "Description": "control and monitor storage systems using S.M.A.R.T.\n The smartmontools package contains two utility programs (smartctl and smartd)\n to control and monitor storage systems using the Self-Monitoring, Analysis and\n Reporting Technology System (S.M.A.R.T.) built into most modern ATA and SCSI\n hard disks. It is derived from the smartsuite package, and includes support\n for ATA/ATAPI-5 disks. It should run on any modern Linux system.",
+    "OldVersion": "7.4-pve1",
+    "Origin": "unknown",
+    "Package": "smartmontools",
+    "Priority": "optional",
+    "Section": "utils",
+    "Title": "control and monitor storage systems using S.M.A.R.T.",
+    "Version": "7.4-pve1"
+  },
+  {
+    "Arch": "amd64",
+    "Description": "command-line tools to manage OpenZFS filesystems\n OpenZFS is a storage platform that encompasses the functionality of\n traditional filesystems and volume managers. It supports data checksums,\n compression, encryption, snapshots, and more.\n .\n This package provides the zfs and zpool commands to create and administer\n OpenZFS filesystems.",
+    "OldVersion": "2.3.3-pve1",
+    "Origin": "unknown",
+    "Package": "zfsutils-linux",
+    "Priority": "optional",
+    "Section": "contrib/admin",
+    "Title": "command-line tools to manage OpenZFS filesystems",
+    "Version": "2.3.9-0+deb13u1"
+  }
+]

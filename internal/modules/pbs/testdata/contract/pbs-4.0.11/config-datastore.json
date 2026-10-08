@@ -1,0 +1,42 @@
+[
+  {
+    "comment": "",
+    "gc-schedule": "daily",
+    "name": "store4",
+    "notification-mode": "legacy-sendmail",
+    "notify": "gc=error,prune=error,sync=error,verify=error",
+    "path": "/mnt/hdd/store4"
+  },
+  {
+    "comment": "comment2",
+    "gc-schedule": "daily",
+    "name": "store2",
+    "notification-mode": "legacy-sendmail",
+    "notify": "gc=error,prune=error,sync=error,verify=error",
+    "path": "/mnt/store6/store2"
+  },
+  {
+    "comment": "",
+    "gc-schedule": "daily",
+    "name": "store3",
+    "notification-mode": "legacy-sendmail",
+    "notify": "gc=error,prune=error,sync=error,verify=error",
+    "path": "/mnt/hdd/dir3"
+  },
+  {
+    "comment": "comment3",
+    "gc-schedule": "daily",
+    "name": "store1",
+    "notification-mode": "legacy-sendmail",
+    "notify": "gc=error,prune=error,sync=error,verify=error",
+    "path": "/mnt/hdd/store1"
+  },
+  {
+    "comment": "",
+    "gc-schedule": "daily",
+    "name": "store5",
+    "notification-mode": "legacy-sendmail",
+    "notify": "gc=error,prune=error,sync=error,verify=error",
+    "path": "/mnt/hdd/store5"
+  }
+]
