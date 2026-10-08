@@ -13,8 +13,10 @@ import (
 	"strconv"
 	"strings"
 	"syscall"
+	"time"
 
 	"github.com/PNT-Data-Center/omnibusmcp/internal/audit"
+	"github.com/PNT-Data-Center/omnibusmcp/internal/certs"
 	"github.com/PNT-Data-Center/omnibusmcp/internal/compat"
 	"github.com/PNT-Data-Center/omnibusmcp/internal/config"
 	"github.com/PNT-Data-Center/omnibusmcp/internal/executor"
@@ -46,14 +48,17 @@ Author: ` + author + `
 
 Usage:
   omnibusmcp serve     [--config PATH]      run the MCP server
-  omnibusmcp install   [--tier N] [--modules auto|m1,m2] [--listen ADDR] [--force]
+  omnibusmcp install   [--tier N] [--modules auto|m1,m2] [--listen ADDR] [--force] [--allow-insecure-remote]
                                             install and start the systemd service
+                                            (a non-loopback --listen gets a TLS certificate)
   omnibusmcp uninstall [--purge]            stop and remove the service
   omnibusmcp status    [--config PATH]      service state and MCP endpoint (exit 0 running, 3 stopped, 4 not installed)
   omnibusmcp detect    [--config PATH]      show detected and enabled modules
   omnibusmcp tools     [--config PATH]      list tools exposed at the configured tier
   omnibusmcp tls       generate|renew|status|disable
                                             manage the self-signed HTTPS certificate
+  omnibusmcp upgrade   [--check] [--version vX.Y.Z] [--force] [--yes]
+                                            download a release from GitHub and replace the binary
   omnibusmcp version
 `
 
@@ -113,6 +118,8 @@ func main() {
 		err = runTools(args)
 	case "tls":
 		err = runTLS(args)
+	case "upgrade":
+		err = runUpgrade(args)
 	case "version", "--version", "-v":
 		fmt.Println(ui.Bold("omnibusmcp"), ui.Cyan(version))
 		fmt.Println(ui.Dim("Author: " + author))
@@ -203,8 +210,9 @@ func runInstall(args []string) error {
 	fs := flag.NewFlagSet("install", flag.ExitOnError)
 	tierN := fs.Int("tier", 1, "permission tier (1 = read-only, 2 = + service restarts)")
 	mods := fs.String("modules", config.ModulesAuto, "comma-separated modules or auto")
-	listen := fs.String("listen", config.DefaultListen, "listen address")
+	listen := fs.String("listen", config.DefaultListen, "listen address; a non-loopback address gets a TLS certificate")
 	force := fs.Bool("force", false, "overwrite an existing config file")
+	insecure := fs.Bool("allow-insecure-remote", false, "serve a non-loopback address over plain HTTP (no certificate)")
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
@@ -219,7 +227,58 @@ func runInstall(args []string) error {
 			return fmt.Errorf("unknown module %q (available: %s)", m, strings.Join(modules.Names(), ", "))
 		}
 	}
-	return install.Install(install.Options{Tier: *tierN, Modules: list, Listen: *listen, Force: *force, Out: os.Stdout})
+
+	p := install.DefaultPaths
+	cfgPath := install.ConfigPath(p)
+	if _, err := os.Stat(cfgPath); err == nil && !*force {
+		// An existing config is kept; flags meant for it would be silently lost.
+		var set []string
+		fs.Visit(func(f *flag.Flag) {
+			if f.Name != "force" {
+				set = append(set, "--"+f.Name)
+			}
+		})
+		if len(set) > 0 {
+			return fmt.Errorf("%s already exists, so %s would not be applied; add --force to rewrite it (the token is kept)", cfgPath, strings.Join(set, " "))
+		}
+	}
+
+	o := install.Options{Tier: *tierN, Modules: list, Listen: *listen, Force: *force, AllowInsecureRemote: *insecure, Out: os.Stdout}
+	probe := config.Default()
+	probe.Listen = *listen
+	o.TLS = !probe.ListenIsLoopback() && !*insecure
+	var tlsCfg *config.Config
+	if o.TLS {
+		// A network listener serves HTTPS from the start: the certificate is
+		// created (or an existing one reused) before the service starts.
+		o.BeforeStart = func() error {
+			cfg, err := loadInstalledConfig(cfgPath)
+			if err != nil {
+				return err
+			}
+			tlsCfg = cfg
+			cp := server.TLSPaths(cfg)
+			if _, err := os.Stat(cp.Cert); err == nil {
+				fmt.Printf("%s%s %s\n", ui.Label("tls", 9), cp.Cert, ui.Dim("exists, kept"))
+				return nil
+			}
+			info, err := certs.Generate(cp, certs.DetectHosts(cfg.Listen), certs.DefaultDays, time.Now())
+			if err != nil {
+				return fmt.Errorf("tls certificate: %w", err)
+			}
+			auditTLS(cfg, "tls_generate", info)
+			fmt.Printf("%s%s %s %s\n", ui.Label("tls", 9), cp.Cert, ui.Green("generated"), ui.Dim("(hosts: "+strings.Join(info.Hosts(), ", ")+")"))
+			return nil
+		}
+	}
+	if err := install.Install(o); err != nil {
+		return err
+	}
+	if tlsCfg != nil {
+		fmt.Println()
+		return printClientSetup(tlsCfg, "")
+	}
+	return nil
 }
 
 func runUninstall(args []string) error {

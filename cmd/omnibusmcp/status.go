@@ -81,6 +81,8 @@ func runStatus(args []string) int {
 		}
 	}
 
+	line("Update", updateStatus())
+
 	// Configuration and endpoint
 	cfg, found, err := config.Load(*cfgPath)
 	switch {

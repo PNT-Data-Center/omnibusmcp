@@ -214,3 +214,57 @@ func TestResolveEndpoint(t *testing.T) {
 		t.Fatalf("%+v", v6)
 	}
 }
+
+func TestParseExecPath(t *testing.T) {
+	for out, want := range map[string]string{
+		"LoadState=loaded\nExecStart={ path=/usr/local/bin/omnibusmcp ; argv[]=/usr/local/bin/omnibusmcp serve --config /etc/omnibusmcp/config.yaml ; ignore_errors=no ; start_time=[n/a] ; stop_time=[n/a] ; pid=0 ; code=(null) ; status=0/0 }\n": "/usr/local/bin/omnibusmcp",
+		"LoadState=loaded\nExecStart={ path=/opt/omnibusmcp/bin/omnibusmcp ; argv[]=/opt/omnibusmcp/bin/omnibusmcp serve ; }\n":                                                                                                                     "/opt/omnibusmcp/bin/omnibusmcp",
+		"LoadState=not-found\nExecStart=\n": "",
+		"LoadState=loaded\nExecStart=\n":    "",
+		"":                                  "",
+	} {
+		if got := ParseExecPath(out); got != want {
+			t.Errorf("ParseExecPath(%q) = %q, want %q", out, got, want)
+		}
+	}
+}
+
+func TestRenderConfigNetworkListener(t *testing.T) {
+	p := testPaths(t)
+	load := func(data []byte) *config.Config {
+		t.Helper()
+		f := filepath.Join(t.TempDir(), "config.yaml")
+		os.WriteFile(f, data, 0o600)
+		cfg, _, err := config.Load(f)
+		if err != nil {
+			t.Fatalf("rendered config does not load: %v\n%s", err, data)
+		}
+		return cfg
+	}
+
+	data, err := RenderConfig(Options{Listen: "192.0.2.10:8765", TLS: true}, p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	cfg := load(data)
+	if cfg.Listen != "192.0.2.10:8765" || cfg.TLS != TLSPaths(p) || cfg.AllowInsecureRemote {
+		t.Fatalf("TLS config: %+v", cfg)
+	}
+	if want := filepath.Join(p.ConfigDir, "tls", "cert.pem"); cfg.TLS.CertFile != want {
+		t.Fatalf("cert_file %q, want %q", cfg.TLS.CertFile, want)
+	}
+
+	data, err = RenderConfig(Options{Listen: "0.0.0.0:8765", AllowInsecureRemote: true}, p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if cfg := load(data); cfg.TLS.Enabled() || !cfg.AllowInsecureRemote {
+		t.Fatalf("insecure config: %+v", cfg)
+	}
+
+	// The default stays plain HTTP on loopback.
+	data, _ = RenderConfig(Options{}, p)
+	if cfg := load(data); cfg.TLS.Enabled() || cfg.AllowInsecureRemote || !cfg.ListenIsLoopback() {
+		t.Fatalf("default config: %+v", cfg)
+	}
+}

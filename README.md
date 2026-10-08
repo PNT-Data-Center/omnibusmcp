@@ -2,7 +2,7 @@
 
 Dedykowany serwer Model Context Protocol (MCP) dla hostów Linux, umożliwiający agentom LLM szybką diagnozę bieżącego stanu serwera i kluczowych usług infrastrukturalnych.
 
-**Status**: Wersja 0.4.1 — etapy 2–5 ukończone, moduły linux, containers (Docker), proxmox, pbs (Tier 1). Wykonanie: Go 1.25+, go-sdk v1.8.0, 38 narzędzi (37 w modułach + health\_summary), audyt, tiery, executor (RunData, limit równoczesnych), serwer HTTP/Bearer, install/uninstall/status, TLS, hardening systemd, kolory CLI, zgodność wersji. Testowane na Debian 13, Proxmox VE 9.2 i Proxmox Backup Server 4.0.
+**Status**: Wersja 0.5.0 — etapy 2–5 ukończone, moduły linux, containers (Docker), proxmox, pbs (Tier 1). Wykonanie: Go 1.25+, go-sdk v1.8.0, 38 narzędzi (37 w modułach + health\_summary), audyt, tiery, executor (RunData, limit równoczesnych), serwer HTTP/Bearer, install/uninstall/status/upgrade, TLS, hardening systemd, kolory CLI, zgodność wersji. Testowane na Debian 13, Proxmox VE 9.2 i Proxmox Backup Server 4.0.
 
 ## Funkcjonalności
 
@@ -11,6 +11,7 @@ Dedykowany serwer Model Context Protocol (MCP) dla hostów Linux, umożliwiając
 - **Bezpieczny executor** — każde narzędzie to konkretne polecenie ze stałymi argumentami (brak generycznego shella); timeouty, limity wyjścia, audyt każdego wywołania.
 - **Health summary** — jedno wywołanie zwraca zagregowany stan hosta i modułów (OK/WARN/CRIT).
 - **Transport MCP Streamable HTTP** — uwierzytelnianie tokenem Bearer; domyślnie localhost (tunel SSH), opcjonalnie TLS.
+- **Aktualizacja jednym poleceniem** — `omnibusmcp upgrade` pobiera wydanie z GitHuba, weryfikuje SHA-256 i przy nieudanym starcie usługi wraca do poprzedniej wersji (sekcja [Aktualizacja](#aktualizacja)).
 
 ## Schemat architektury
 
@@ -55,7 +56,7 @@ flowchart TB
     classDef planned stroke-dasharray: 5 5,color:#888
 ```
 
-Linie przerywane oznaczają elementy planowane. Domyślny nasłuch to `127.0.0.1:8765`; dostęp z sieci wymaga `--listen` i zalecanego [TLS](docs/tls.md).
+Linie przerywane oznaczają elementy planowane. Domyślny nasłuch to `127.0.0.1:8765`; dostęp z sieci wymaga `--listen`, a adres sieciowy włącza [TLS](docs/tls.md) automatycznie.
 
 ## Moduły i tiery
 
@@ -77,6 +78,7 @@ Wszystkie narzędzia działają w Tier 1 (tylko odczyt). Tier 2 funkcjonalności
 - **Dystrybucje**: Debian, Ubuntu, AlmaLinux (tylko Debian 13 przetestowana)
 - **Dostęp**: root do instalacji usługi systemd
 - **Opcjonalnie**: tunel SSH (dla domyślnego nasłuchu na localhost)
+- **Opcjonalnie**: dostęp do GitHuba (dla `upgrade` i wiersza `Update` w `status`; repozytorium jest publiczne)
 
 ## Instalacja
 
@@ -90,37 +92,27 @@ curl -fsSL https://github.com/PNT-Data-Center/omnibusmcp/releases/latest/downloa
 # wybrana wersja
 curl -fsSL https://github.com/PNT-Data-Center/omnibusmcp/releases/latest/download/install.sh | sudo bash -s -- --version v0.4.1
 
-# instalacja i od razu konfiguracja usługi (parametry jak w "omnibusmcp install")
+# instalacja i od razu konfiguracja usługi na adresie sieciowym (parametry jak w "omnibusmcp install"; TLS włączany automatycznie)
 curl -fsSL https://github.com/PNT-Data-Center/omnibusmcp/releases/latest/download/install.sh | sudo bash -s -- --install --listen 192.0.2.10:8765
 ```
 
-Dopóki repozytorium jest prywatne, adresy wydań wymagają uwierzytelnienia. Skrypt korzysta wtedy z API GitHuba z tokenem (`GH_TOKEN`); token trzeba przekazać jawnie, bo `sudo` nie przenosi zmiennych środowiskowych:
-
-```bash
-gh release download -R PNT-Data-Center/omnibusmcp -p install.sh -O - | sudo GH_TOKEN="$(gh auth token)" bash
-```
-
-Opcje skryptu: `--version vX.Y.Z`, `--install [parametry]`, `--help`; zmienne: `GH_TOKEN`/`GITHUB_TOKEN`, `OMNIBUSMCP_REPO`, `OMNIBUSMCP_BASE_URL`, `OMNIBUSMCP_BIN_DIR`. Skrypt działa w całości dopiero po pobraniu (funkcja wywoływana w ostatniej linii), więc przerwane pobieranie niczego nie uruchomi. Suma SHA-256 chroni przed uszkodzonym pobraniem, nie przed podmianą wydania.
+Opcje skryptu: `--version vX.Y.Z`, `--install [parametry]`, `--help`; zmienne: `OMNIBUSMCP_REPO`, `OMNIBUSMCP_BASE_URL`, `OMNIBUSMCP_BIN_DIR`. Token `GH_TOKEN` lub `GITHUB_TOKEN` jest opcjonalny: gdy jest ustawiony, skrypt pobiera wydania przez API GitHuba zamiast bezpośrednich adresów. `sudo` nie przenosi zmiennych środowiskowych, więc przekaż je jawnie, np. `sudo GH_TOKEN="$TOKEN" bash`. Skrypt działa w całości dopiero po pobraniu (funkcja wywoływana w ostatniej linii), więc przerwane pobieranie niczego nie uruchomi. Suma SHA-256 chroni przed uszkodzonym pobraniem, nie przed podmianą wydania.
 
 ### Z wydania (binarki)
 
 Każde wydanie zawiera statyczne binarki `omnibusmcp-linux-amd64` i `omnibusmcp-linux-arm64` oraz plik `SHA256SUMS`.
 
 ```bash
-VER=v0.4.1
+VER=v0.5.0
 ARCH=$(dpkg --print-architecture 2>/dev/null || uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')
 
-# Repozytorium publiczne: bezpośredni adres plików wydania
-BASE="<adres-repozytorium>/releases/download/$VER"
+BASE="https://github.com/PNT-Data-Center/omnibusmcp/releases/download/$VER"
 curl -fsSLO "$BASE/omnibusmcp-linux-$ARCH"
 curl -fsSLO "$BASE/SHA256SUMS"
 
-# Repozytorium prywatne na GitHubie: przez GitHub CLI (gh auth login)
-#   gh release download "$VER" -R <organizacja>/omnibusmcp -p "omnibusmcp-linux-$ARCH" -p SHA256SUMS
-
 sha256sum -c --ignore-missing SHA256SUMS
 install -m 0755 "omnibusmcp-linux-$ARCH" /usr/local/bin/omnibusmcp
-omnibusmcp version            # omnibusmcp v0.4.1
+omnibusmcp version            # omnibusmcp v0.5.0
 omnibusmcp install            # dalej: docs/service.md
 ```
 
@@ -130,23 +122,21 @@ omnibusmcp install            # dalej: docs/service.md
 
 ```bash
 # Zainstaluj wydanie bezpośrednio przez Go (Go 1.25+)
-go install github.com/PNT-Data-Center/omnibusmcp/cmd/omnibusmcp@v0.4.1
+go install github.com/PNT-Data-Center/omnibusmcp/cmd/omnibusmcp@v0.5.0
 
 # Binarka zainstalowana w $GOPATH/bin/omnibusmcp (domyślnie ~/go/bin/)
-omnibusmcp version            # omnibusmcp v0.4.1
+omnibusmcp version            # omnibusmcp v0.5.0
 ```
-
-Dla repozytorium prywatnego ustaw `GOPRIVATE` na ścieżkę modułu i skonfiguruj dostęp git (np. klucz SSH z `git config --global url."git@<host>:".insteadOf "https://<host>/"`).
 
 **Build ze źródeł z wersją**:
 
 ```bash
 # Klonowanie repozytorium
-git clone <adres-repozytorium>
+git clone https://github.com/PNT-Data-Center/omnibusmcp.git
 cd omnibusmcp
 
-# Checkout wersji 0.4.1
-git checkout v0.4.1
+# Checkout wersji 0.5.0
+git checkout v0.5.0
 
 # Budowanie z wersją (pseudowersja z Git)
 CGO_ENABLED=0 go build -trimpath \
@@ -154,7 +144,7 @@ CGO_ENABLED=0 go build -trimpath \
   -o omnibusmcp ./cmd/omnibusmcp
 
 # Sprawdzenie wersji
-./omnibusmcp version          # omnibusmcp v0.4.1
+./omnibusmcp version          # omnibusmcp v0.5.0
 
 # Wyświetlenie dostępnych poleceń
 ./omnibusmcp --help
@@ -168,18 +158,76 @@ CGO_ENABLED=0 go build -trimpath \
 # 1. Instalacja i uruchomienie usługi (Tier 1, auto-detekcja modułów, nasłuch 127.0.0.1:8765)
 sudo omnibusmcp install
 
-#    Dostęp z sieci: własny adres nasłuchu + certyfikat TLS
-#    sudo omnibusmcp install --listen 192.0.2.10:8765
-#    sudo omnibusmcp tls generate
-
 # 2. Stan usługi i adres endpointu MCP
 sudo omnibusmcp status
-
-# 3. Konfiguracja klientów (pobranie CA, token, dodanie do Claude Code)
-sudo omnibusmcp tls client-setup --host 192.0.2.10
 ```
 
+Dostęp z sieci: `sudo omnibusmcp install --listen 192.0.2.10:8765`. Instalator włącza TLS i wypisuje instrukcję dla klientów (szczegóły: [Dostęp sieciowy i TLS](#dostęp-sieciowy-i-tls)).
+
 Dalej: [podłączenie klienta](docs/clients.md) (Claude Code, Gemini CLI, Cursor, inne), [TLS](docs/tls.md), [zarządzanie usługą](docs/service.md).
+
+## Dostęp sieciowy i TLS
+
+Domyślnie usługa nasłuchuje na `127.0.0.1:8765` i jest dostępna przez tunel SSH. Adres sieciowy podany w `--listen` włącza HTTPS automatycznie:
+
+```bash
+sudo omnibusmcp install --listen 192.0.2.10:8765
+```
+
+Przed startem usługi instalator:
+
+1. zapisuje w `config.yaml` ścieżki `tls.cert_file` i `tls.key_file` (`/etc/omnibusmcp/tls/cert.pem` i `key.pem`),
+2. generuje certyfikat podpisany jednorazowym lokalnym CA; nazwy hostów (w tym adres z `--listen`) wykrywa automatycznie; klucz CA nie jest zapisywany na dysku,
+3. zapisuje zdarzenie `tls_generate` w logu audytu,
+4. na końcu wypisuje instrukcję konfiguracji klientów (jak `omnibusmcp tls client-setup`).
+
+Istniejący certyfikat jest zachowywany. Klienci muszą raz zaufać CA serwera; `tls client-setup` podaje polecenia z kontrolą odcisku SHA-256. Model certyfikatu: [HTTPS / TLS](docs/tls.md).
+
+Plain HTTP na adresie sieciowym wymaga jawnej zgody:
+
+```bash
+sudo omnibusmcp install --listen 192.0.2.10:8765 --allow-insecure-remote
+```
+
+Ustawia `allow_insecure_remote: true` i nie tworzy certyfikatu. Ruch, w tym token Bearer, idzie bez szyfrowania, więc używaj tej opcji tylko w zaufanej sieci wewnętrznej.
+
+Istniejąca konfiguracja: jeśli `config.yaml` już istnieje, `install` z `--listen`, `--tier`, `--modules` lub `--allow-insecure-remote` kończy się błędem zamiast po cichu pominąć te flagi. Dodaj `--force`, aby przepisać konfigurację (token zostaje). `install` bez tych flag zachowuje konfigurację bez zmian; tak działa też `upgrade`.
+
+Zmiana adresu: istniejący certyfikat zostaje także po zmianie `--listen`. Jeśli nowy adres nie znajduje się w jego nazwach hostów, wygeneruj certyfikat ponownie poleceniem `sudo omnibusmcp tls generate --force` (w razie potrzeby z `--hosts`). Powstaje wtedy nowe CA, więc klienci muszą mu zaufać ponownie.
+
+## Aktualizacja
+
+Zainstalowaną binarkę aktualizuje polecenie `upgrade`, które pobiera wydanie z GitHuba:
+
+```bash
+# Sprawdzenie, czy jest nowsze wydanie (bez roota)
+omnibusmcp upgrade --check
+
+# Aktualizacja do najnowszego wydania
+sudo omnibusmcp upgrade
+
+# Wybrana wersja; starsza wersja (downgrade) wymaga potwierdzenia
+sudo omnibusmcp upgrade --version v0.4.1
+```
+
+Przebieg aktualizacji:
+
+1. Pobranie `omnibusmcp-linux-<arch>` i `SHA256SUMS` z wydania; suma SHA-256 musi się zgadzać. Przy niezgodności nic nie zostaje zainstalowane.
+2. Nowa binarka jest zapisywana obok obecnej i sprawdzana (`version` musi zwrócić wybrany tag).
+3. Poprzednia binarka zostaje jako `<binarka>.prev`, a nowa zastępuje ją atomowo. Celem jest binarka, którą uruchamia zainstalowana usługa; bez usługi — `/usr/local/bin/omnibusmcp`.
+4. Nowa binarka wykonuje `omnibusmcp install`: zachowuje konfigurację i token, odświeża jednostki systemd i restartuje usługę.
+5. Po 5 sekundach usługa musi być aktywna. Jeśli nie, polecenie przywraca poprzednią binarkę, uruchamia usługę ponownie i kończy się błędem; diagnostyka: `journalctl -u omnibusmcp -n 50`.
+
+Opcje: `--check` (tylko sprawdzenie), `--version vX.Y.Z` (wybrana wersja), `--force` (reinstalacja tej samej wersji), `--yes` (bez pytań: downgrade lub build deweloperski). Downgrade pyta o potwierdzenie na terminalu; bez terminala wymaga `--yes`. Build deweloperski (wersja `dev+…` lub pseudo-wersja Go) aktualizuje się tylko z `--yes`. Równoległe aktualizacje wykluczają się blokadą `/run/lock/omnibusmcp-upgrade.lock`.
+
+Uwagi:
+
+- Ponowne `install` uruchamia usługę także wtedy, gdy była zatrzymana.
+- Aktualizacja nie zmienia `config.yaml`; migracji konfiguracji między wersjami na razie nie ma.
+- Suma SHA-256 chroni przed uszkodzonym pobraniem, nie przed podmianą wydania (brak podpisów).
+- Polecenie nie wymaga tokena GitHuba (wydania są publiczne). Alternatywne źródło wskazuje zmienna `OMNIBUSMCP_BASE_URL`.
+
+Wiersz `Update` w `omnibusmcp status` pokazuje, czy jest nowsze wydanie (`vX.Y.Z available (sudo omnibusmcp upgrade)`), czy wersja jest aktualna (`up to date`), czy to build deweloperski, albo że sprawdzenie się nie udało (brak dostępu do GitHuba). Sprawdzenie trwa najwyżej 2 sekundy i nie wpływa na kod wyjścia `status`.
 
 ## Konfiguracja
 
@@ -190,8 +238,8 @@ Plik konfiguracji znajduje się w `/etc/omnibusmcp/config.yaml` (tworzy się pod
 # Domyślnie: 127.0.0.1:8765 (localhost, wymaga SSH tunnel dla dostępu zdalnego)
 # Inne przykłady:
 #   [::1]:8765              — IPv6 loopback
-#   192.0.2.10:8765         — konkretny interfejs (wymaga TLS lub allow_insecure_remote)
-#   0.0.0.0:8765            — wszystkie interfejsy (to samo wymaganie)
+#   192.0.2.10:8765         — konkretny interfejs (install z tym adresem włącza TLS, zob. Dostęp sieciowy i TLS)
+#   0.0.0.0:8765            — wszystkie interfejsy (jak wyżej)
 listen: 127.0.0.1:8765
 
 # Tier dostępu (1 = read-only, 2 = + restartowanie usług)
@@ -204,13 +252,13 @@ modules:
 # Plik tokenu Bearer (generowany przy install)
 token_file: /etc/omnibusmcp/token
 
-# TLS (opcjonalne: jeśli chcesz HTTPS zamiast HTTP)
-# Wymagane jeśli nasłuch na innym interfejsie niż loopback (zobacz allow_insecure_remote poniżej)
+# TLS (pusta wartość = HTTP). Przy install z adresem sieciowym wypełniane automatycznie;
+# ręcznie: omnibusmcp tls generate
 tls:
   cert_file: ""
   key_file: ""
 
-# Czy zezwolić nasłuchowi poza loopback bez TLS (domyślnie false)
+# Czy zezwolić nasłuchowi poza loopback bez TLS (domyślnie false; ustawiane przez install --allow-insecure-remote)
 # false = wymusa SSH tunnel lub TLS dla bezpieczeństwa
 # true = pozwala na niezaszyfrowany dostęp sieciowy (TYLKO dla wewnętrznych sieci)
 allow_insecure_remote: false
@@ -259,7 +307,7 @@ go test -v ./...
 
 ```
 omnibusmcp/
-├── cmd/omnibusmcp/        # CLI: serve, install, uninstall, status, detect, tools, tls, version
+├── cmd/omnibusmcp/        # CLI: serve, install, uninstall, status, detect, tools, tls, upgrade, version
 ├── docs/                  # Dokumentacja: moduły, TLS, klienci, bezpieczeństwo, zgodność
 │   ├── modules/           # Dokumentacja modułów: linux, containers, proxmox, pbs
 │   ├── compatibility.md   # Testowane wersje, tolerancja API
@@ -279,7 +327,8 @@ omnibusmcp/
 │   ├── registry/          # rejestr narzędzi, tiery, health checks
 │   ├── server/            # serwer MCP (Streamable HTTP, Bearer, TLS, health_summary)
 │   ├── tier/              # poziomy uprawnień
-│   └── ui/                # kolory w wyjściu CLI
+│   ├── ui/                # kolory w wyjściu CLI
+│   └── upgrade/           # pobieranie wydań z GitHuba, weryfikacja SHA-256, podmiana binarki
 ├── install.sh             # instalator najnowszego wydania (curl … | sudo bash)
 ├── go.mod
 └── go.sum
@@ -294,6 +343,7 @@ omnibusmcp/
 - `health_summary`, instalacja jako usługa systemd z hardeningiem, `status`, TLS self-signed z automatycznym odnawianiem
 - Zgodność wersji produktów, tolerancyjny dekoder JSON, testy kontraktowe na zanonimizowanych nagraniach API
 - Wydania binarne linux/amd64 i linux/arm64 z sumami SHA256
+- Aktualizacja binarki (`omnibusmcp upgrade`) z weryfikacją SHA-256 i powrotem do poprzedniej wersji przy błędzie usługi
 
 **Planowane**
 

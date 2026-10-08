@@ -63,6 +63,41 @@ func ParseUnitState(out string) UnitState {
 	return u
 }
 
+var execPathRe = regexp.MustCompile(`(?:^|[{;\s])path=(\S+)`)
+
+// ExecPath returns the binary the installed service runs (the path of its
+// ExecStart, drop-ins included), or "" if the unit is not installed.
+func ExecPath() (string, error) {
+	out, err := exec.Command("systemctl", "show", UnitName, "--property=LoadState,ExecStart").Output()
+	if err != nil {
+		return "", err
+	}
+	return ParseExecPath(string(out)), nil
+}
+
+// ParseExecPath reads the binary path from "systemctl show
+// --property=LoadState,ExecStart" output.
+func ParseExecPath(out string) string {
+	var load, start string
+	for _, l := range strings.Split(out, "\n") {
+		if k, v, ok := strings.Cut(l, "="); ok {
+			switch k {
+			case "LoadState":
+				load = v
+			case "ExecStart":
+				start = v
+			}
+		}
+	}
+	if load == "" || load == "not-found" {
+		return ""
+	}
+	if m := execPathRe.FindStringSubmatch(start); m != nil {
+		return m[1]
+	}
+	return ""
+}
+
 var startedVersionRe = regexp.MustCompile(`msg="OmnibusMCP started" version=(\S+)`)
 
 // RunningVersion returns the version logged by the current service start,

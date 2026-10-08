@@ -2,6 +2,8 @@
 
 Domyślnie serwer nasłuchuje na `127.0.0.1:8765` (localhost, wymaga SSH tunelu). Do nasłuchu na innym interfejsie wymagana jest obsługa TLS lub flaga `allow_insecure_remote` (tylko dla tuneli bez dostępu do Internetu).
 
+`omnibusmcp install --listen <adres>:8765` z adresem spoza loopbacka włącza TLS od razu: zapisuje config z `tls.cert_file`/`tls.key_file` (`/etc/omnibusmcp/tls/`), generuje certyfikat tak jak `tls generate` (istniejący zostaje) i wypisuje polecenia konfiguracji klientów. Zwykłe HTTP na adresie sieciowym wymaga jawnej flagi `install --allow-insecure-remote`.
+
 ## Model certyfikatu: jednorazowy lokalny CA
 
 Serwer OmnibusMCP używa **jednorazowego lokalnego CA** zamiast certyfikatów self-signed. Przy generowaniu:

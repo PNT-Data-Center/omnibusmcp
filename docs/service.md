@@ -9,9 +9,15 @@ sudo ./omnibusmcp install --tier 1
 # (Alternatywa) Instalacja na Tier 2, jawnie wskazane moduły
 sudo ./omnibusmcp install --tier 2 --modules linux,containers,ceph
 
-# (Alternatywa) Nasłuch na sieci (bez TLS, wymaga Internetu)
-sudo ./omnibusmcp install --tier 1 --listen 0.0.0.0:8765
+# (Alternatywa) Nasłuch na adresie sieciowym: install od razu generuje
+# certyfikat TLS (lokalne CA) i wypisuje polecenia konfiguracji klientów
+sudo ./omnibusmcp install --tier 1 --listen 192.0.2.10:8765
+
+# (Niezalecane) Adres sieciowy przez zwykłe HTTP, bez certyfikatu
+sudo ./omnibusmcp install --tier 1 --listen 192.0.2.10:8765 --allow-insecure-remote
 ```
+
+Jeśli plik konfiguracji już istnieje, `install` z `--listen`, `--tier`, `--modules` lub `--allow-insecure-remote` kończy się błędem, zamiast pominąć te ustawienia; `--force` zapisuje config od nowa (token zostaje).
 
 Po instalacji:
 

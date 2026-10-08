@@ -39,8 +39,25 @@ type Options struct {
 	Listen  string
 	// Force overwrites an existing config file.
 	Force bool
-	Out   io.Writer
+	// TLS writes a config that serves HTTPS with the certificate in
+	// TLSPaths; BeforeStart is expected to create it.
+	TLS bool
+	// AllowInsecureRemote permits a non-loopback listener without TLS.
+	AllowInsecureRemote bool
+	// BeforeStart runs after the files are written, before the service is
+	// (re)started.
+	BeforeStart func() error
+	Out         io.Writer
 }
+
+// TLSPaths are the certificate and key files of a config written with TLS.
+func TLSPaths(p Paths) config.TLS {
+	dir := filepath.Join(p.ConfigDir, "tls")
+	return config.TLS{CertFile: filepath.Join(dir, "cert.pem"), KeyFile: filepath.Join(dir, "key.pem")}
+}
+
+// ConfigPath is the config file of an installation.
+func ConfigPath(p Paths) string { return filepath.Join(p.ConfigDir, "config.yaml") }
 
 // Paths is a set of installation paths; tests override it.
 type Paths struct {
@@ -59,6 +76,11 @@ func Install(o Options) error {
 	p := DefaultPaths
 	if err := Files(p, o); err != nil {
 		return err
+	}
+	if o.BeforeStart != nil {
+		if err := o.BeforeStart(); err != nil {
+			return err
+		}
 	}
 	for _, args := range [][]string{{"daemon-reload"}, {"enable", UnitName}, {"restart", UnitName}, {"enable", "--now", RenewName + ".timer"}} {
 		if err := systemctl(args...); err != nil {
@@ -97,7 +119,7 @@ func Files(p Paths, o Options) error {
 	cfgPath := filepath.Join(p.ConfigDir, "config.yaml")
 	switch _, statErr := os.Stat(cfgPath); {
 	case statErr == nil && !o.Force:
-		fmt.Fprintf(o.Out, "%s%s %s\n", ui.Label("config", 9), cfgPath, ui.Dim("exists, kept (use --force to overwrite; install flags were not applied)"))
+		fmt.Fprintf(o.Out, "%s%s %s\n", ui.Label("config", 9), cfgPath, ui.Dim("exists, kept (use --force to overwrite)"))
 	default:
 		if err := writeAtomic(cfgPath, cfgData, 0o600); err != nil {
 			return err
@@ -290,11 +312,11 @@ token_file: {{.TokenFile}}
 # HTTPS. Empty = plain HTTP. "omnibusmcp tls generate" creates a self-signed
 # certificate and fills these in; omnibusmcp-tls-renew.timer renews it.
 tls:
-  cert_file: ""
-  key_file: ""
+  cert_file: "{{.CertFile}}"
+  key_file: "{{.KeyFile}}"
 
 # Allow a non-loopback listener without TLS (not recommended).
-allow_insecure_remote: false
+allow_insecure_remote: {{.AllowInsecureRemote}}
 
 # JSON-lines audit log of every tool call; "-" logs to the journal.
 audit_log: {{.AuditLog}}
@@ -318,6 +340,10 @@ func RenderConfig(o Options, p Paths) ([]byte, error) {
 	if len(o.Modules) > 0 {
 		d.Modules = o.Modules
 	}
+	if o.TLS {
+		d.TLS = TLSPaths(p)
+	}
+	d.AllowInsecureRemote = o.AllowInsecureRemote
 	d.TokenFile = filepath.Join(p.ConfigDir, "token")
 	d.AuditLog = filepath.Join(p.LogDir, "audit.log")
 	if err := d.Validate(); err != nil {
@@ -327,6 +353,7 @@ func RenderConfig(o Options, p Paths) ([]byte, error) {
 	err := configTmpl.Execute(&buf, map[string]any{
 		"Listen": d.Listen, "Tier": int(d.Tier), "Modules": strings.Join(d.Modules, ", "),
 		"TokenFile": d.TokenFile, "AuditLog": d.AuditLog,
+		"CertFile": d.TLS.CertFile, "KeyFile": d.TLS.KeyFile, "AllowInsecureRemote": d.AllowInsecureRemote,
 	})
 	return buf.Bytes(), err
 }
