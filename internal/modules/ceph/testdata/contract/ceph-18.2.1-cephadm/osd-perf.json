@@ -1,0 +1,655 @@
+{
+  "osdstats": {
+    "osd_perf_infos": [
+      {
+        "id": 71,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 70,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 69,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 68,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 67,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 7,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 65,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 66,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 64,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 63,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 62,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 61,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 60,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 59,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 58,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 57,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 56,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 55,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 54,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 53,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 52,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 51,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 50,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 49,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 48,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 47,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 46,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 45,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 44,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 43,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 42,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 41,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 40,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 39,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 38,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 37,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 36,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 15,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 14,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 13,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 12,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 11,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 10,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 9,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 8,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 6,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 1,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 0,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 2,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 3,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 4,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 5,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 16,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 17,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 18,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 19,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 20,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 21,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 22,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 23,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 24,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 25,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 26,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 27,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 28,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 29,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 30,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 31,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 32,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 33,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 34,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      },
+      {
+        "id": 35,
+        "perf_stats": {
+          "apply_latency_ms": 0,
+          "apply_latency_ns": 0,
+          "commit_latency_ms": 0,
+          "commit_latency_ns": 0
+        }
+      }
+    ]
+  },
+  "pg_ready": true
+}

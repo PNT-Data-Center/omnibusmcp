@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/PNT-Data-Center/omnibusmcp/internal/config"
+	"github.com/PNT-Data-Center/omnibusmcp/internal/modules/ceph"
 	"github.com/PNT-Data-Center/omnibusmcp/internal/modules/containers"
 	"github.com/PNT-Data-Center/omnibusmcp/internal/modules/linux"
 	"github.com/PNT-Data-Center/omnibusmcp/internal/modules/pbs"
@@ -18,7 +19,7 @@ import (
 
 // All returns every compiled-in module; the base module comes first.
 func All() []registry.Module {
-	return []registry.Module{linux.New(), containers.New(), proxmox.New(), pbs.New()}
+	return []registry.Module{linux.New(), containers.New(), proxmox.New(), pbs.New(), ceph.New()}
 }
 
 // Detection is the outcome of probing one module.

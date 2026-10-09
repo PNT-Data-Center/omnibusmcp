@@ -2,7 +2,7 @@
 
 Dedykowany serwer Model Context Protocol (MCP) dla hostów Linux, umożliwiający agentom LLM szybką diagnozę bieżącego stanu serwera i kluczowych usług infrastrukturalnych.
 
-**Status**: Wersja 0.5.2 — etapy 2–5 ukończone, moduły linux, containers (Docker), proxmox, pbs (Tier 1). Wykonanie: Go 1.25+, go-sdk v1.8.0, 38 narzędzi (37 w modułach + health\_summary), audyt, tiery, executor (RunData, limit równoczesnych), serwer HTTP/Bearer, install/uninstall/status/upgrade, TLS, hardening systemd, kolory CLI, zgodność wersji. Testowane na Debian 13, Proxmox VE 9.2 i Proxmox Backup Server 4.0.
+**Status**: Wersja 0.6.0 — etapy 2–5 ukończone, moduły linux, containers (Docker), proxmox, pbs, ceph (Tier 1). Wykonanie: Go 1.25+, go-sdk v1.8.0, 47 narzędzi (46 w modułach + health\_summary), audyt, tiery, executor (RunData, limit równoczesnych), serwer HTTP/Bearer, install/uninstall/status/upgrade, TLS, hardening systemd, kolory CLI, zgodność wersji. Testowane na Debian 13, Proxmox VE 9.2, Proxmox Backup Server 4.0 i Ceph 18.2.
 
 ## Funkcjonalności
 
@@ -32,7 +32,7 @@ flowchart TB
                 cont["containers<br/>(Docker)"]
                 pve["proxmox"]
                 pbs["pbs"]
-                ceph["ceph<br/>(planowany)"]:::planned
+                ceph["ceph"]
             end
             exec["Executor<br/>stałe argv, bez shella · timeouty · limity wyjścia"]
             files["Polityka plików<br/>dozwolone katalogi + lista odmów (klucze, sekrety)"]
@@ -41,6 +41,7 @@ flowchart TB
         docker["Docker CLI"]
         pvesh["pvesh (lokalne API PVE)"]
         pbsapi["proxmox-backup-debug api"]
+        cephcli["ceph (klucz tylko do odczytu)"]
     end
 
     client -- "HTTPS + Bearer" --> http
@@ -50,13 +51,11 @@ flowchart TB
     health --> mods
     mods --> exec
     mods --> files
-    exec --> sys & docker & pvesh & pbsapi
+    exec --> sys & docker & pvesh & pbsapi & cephcli
     files --> sys
-
-    classDef planned stroke-dasharray: 5 5,color:#888
 ```
 
-Linie przerywane oznaczają elementy planowane. Domyślny nasłuch to `127.0.0.1:8765`; dostęp z sieci wymaga `--listen`, a adres sieciowy włącza [TLS](docs/tls.md) automatycznie.
+Domyślny nasłuch to `127.0.0.1:8765`; dostęp z sieci wymaga `--listen`, a adres sieciowy włącza [TLS](docs/tls.md) automatycznie.
 
 ## Moduły i tiery
 
@@ -67,10 +66,10 @@ Linie przerywane oznaczają elementy planowane. Domyślny nasłuch to `127.0.0.1
 | [**containers**](docs/modules/containers.md) | Docker: runtime, kontenery, logi, statystyki, zajętość dysku, sieci, zdarzenia             | 8 narzędzi  | `docker` + `/run/docker.sock`                  |
 | [**proxmox**](docs/modules/proxmox.md)       | Proxmox VE: węzeł, klaster/kworum, VM i kontenery, storage, zadania, aktualizacje, backupy | 10 narzędzi | `/etc/pve` + `pvesh`                           |
 | [**pbs**](docs/modules/pbs.md)               | Proxmox Backup Server: datastore'y, garbage collection, backupy, zadania, aktualizacje     | 8 narzędzi  | `/etc/proxmox-backup` + `proxmox-backup-debug` |
-| ceph                                         | —                                                                                          | —           | planowany                                      |
+| [**ceph**](docs/modules/ceph.md)             | Ceph (cephadm, Proxmox VE): stan klastra, OSD, pule, PG, CephFS; demony, dyski, crashe i logi tego hosta | 9 narzędzi (7 w trybie pełnym) | `/etc/pve/ceph.conf` lub `/var/lib/ceph`      |
 
 
-Wszystkie narzędzia działają w Tier 1 (tylko odczyt). Tier 2 funkcjonalności (restartowanie usług) będą określone dla poszczególnych modułów w fazie wdrażania. Konfiguracja modułów (auto-detekcja, jawna lista): [docs/modules/README.md](docs/modules/README.md).
+Wszystkie narzędzia działają w Tier 1 (tylko odczyt). Moduł ceph zakłada klucz `client.omnibusmcp` tylko do odczytu, co opisuje [dokumentacja modułu](docs/modules/ceph.md). Tier 2 funkcjonalności (restartowanie usług) będą określone dla poszczególnych modułów w fazie wdrażania. Konfiguracja modułów (auto-detekcja, jawna lista): [docs/modules/README.md](docs/modules/README.md).
 
 ## Wymagania
 
@@ -103,7 +102,7 @@ Opcje skryptu: `--version vX.Y.Z`, `--install [parametry]`, `--help`; zmienne: `
 Każde wydanie zawiera statyczne binarki `omnibusmcp-linux-amd64` i `omnibusmcp-linux-arm64` oraz plik `SHA256SUMS`.
 
 ```bash
-VER=v0.5.2
+VER=v0.6.0
 ARCH=$(dpkg --print-architecture 2>/dev/null || uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')
 
 BASE="https://github.com/PNT-Data-Center/omnibusmcp/releases/download/$VER"
@@ -112,7 +111,7 @@ curl -fsSLO "$BASE/SHA256SUMS"
 
 sha256sum -c --ignore-missing SHA256SUMS
 install -m 0755 "omnibusmcp-linux-$ARCH" /usr/local/bin/omnibusmcp
-omnibusmcp version            # omnibusmcp v0.5.2
+omnibusmcp version            # omnibusmcp v0.6.0
 omnibusmcp install            # dalej: docs/service.md
 ```
 
@@ -122,10 +121,10 @@ omnibusmcp install            # dalej: docs/service.md
 
 ```bash
 # Zainstaluj wydanie bezpośrednio przez Go (Go 1.25+)
-go install github.com/PNT-Data-Center/omnibusmcp/cmd/omnibusmcp@v0.5.2
+go install github.com/PNT-Data-Center/omnibusmcp/cmd/omnibusmcp@v0.6.0
 
 # Binarka zainstalowana w $GOPATH/bin/omnibusmcp (domyślnie ~/go/bin/)
-omnibusmcp version            # omnibusmcp v0.5.2
+omnibusmcp version            # omnibusmcp v0.6.0
 ```
 
 **Build ze źródeł z wersją**:
@@ -135,8 +134,8 @@ omnibusmcp version            # omnibusmcp v0.5.2
 git clone https://github.com/PNT-Data-Center/omnibusmcp.git
 cd omnibusmcp
 
-# Checkout wersji 0.5.2
-git checkout v0.5.2
+# Checkout wersji 0.6.0
+git checkout v0.6.0
 
 # Budowanie z wersją (pseudowersja z Git)
 CGO_ENABLED=0 go build -trimpath \
@@ -144,7 +143,7 @@ CGO_ENABLED=0 go build -trimpath \
   -o omnibusmcp ./cmd/omnibusmcp
 
 # Sprawdzenie wersji
-./omnibusmcp version          # omnibusmcp v0.5.2
+./omnibusmcp version          # omnibusmcp v0.6.0
 
 # Wyświetlenie dostępnych poleceń
 ./omnibusmcp --help
@@ -271,6 +270,12 @@ limits:
   command_timeout: 15s      # timeout dla poleceń
   health_timeout: 30s       # timeout dla health checks
   max_output_bytes: 65536   # limit rozmiaru wyjścia (64 KiB)
+
+# Ceph (moduł ceph): wszystkie pola opcjonalne; puste = ustawienia domyślne
+ceph:
+  conf: ""          # ceph.conf (bezwzględna ścieżka); pusta: /etc/ceph/ceph.conf lub konfiguracja demona cephadm
+  keyring: ""       # klucz client.omnibusmcp; pusta: /etc/omnibusmcp/ceph.client.omnibusmcp.keyring, potem /etc/pve/priv/
+  cluster: auto     # auto = pytaj klaster, gdy jest klucz; false = tylko widok lokalny (demony, crashe, logi)
 ```
 
 Konfiguracja modułów: zobacz [Moduły](docs/modules/README.md).
@@ -280,7 +285,7 @@ Konfiguracja modułów: zobacz [Moduły](docs/modules/README.md).
 
 | Temat                                                 | Opis                                                                                          |
 | ----------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| [**Moduły**](docs/modules/README.md)                  | Auto-detekcja, konfiguracja, lista narzędzi w każdym module (linux, containers, proxmox, pbs) |
+| [**Moduły**](docs/modules/README.md)                  | Auto-detekcja, konfiguracja, lista narzędzi w każdym module (linux, containers, proxmox, pbs, ceph) |
 | [**Instalacja jako usługa systemd**](docs/service.md) | Instalacja, zarządzanie, diagnostyka, kolory CLI, polecenie `status`                          |
 | [**HTTPS / TLS**](docs/tls.md)                        | Generowanie certyfikatu, automatyczne odnawianie, wyłączenie TLS                              |
 | [**Podłączenie klienta AI**](docs/clients.md)         | Konfiguracja Claude Code, Gemini CLI, Cursor, Antigravity, przygotowanie hosta klienta        |
@@ -309,7 +314,7 @@ go test -v ./...
 omnibusmcp/
 ├── cmd/omnibusmcp/        # CLI: serve, install, uninstall, status, detect, tools, tls, upgrade, version
 ├── docs/                  # Dokumentacja: moduły, TLS, klienci, bezpieczeństwo, zgodność
-│   ├── modules/           # Dokumentacja modułów: linux, containers, proxmox, pbs
+│   ├── modules/           # Dokumentacja modułów: linux, containers, proxmox, pbs, ceph
 │   ├── compatibility.md   # Testowane wersje, tolerancja API
 │   ├── service.md         # Instalacja jako usługa systemd
 │   ├── tls.md             # Certyfikat, automatyczne odnawianie
@@ -323,7 +328,7 @@ omnibusmcp/
 │   ├── executor/          # uruchamianie poleceń bez shella (timeouty, limity wyjścia)
 │   ├── install/           # instalacja usługi systemd i timera odnawiania TLS
 │   ├── jsonx/             # tolerancyjny dekoder JSON
-│   ├── modules/           # moduły: linux, containers, proxmox, pbs (+ wspólny aptrepo)
+│   ├── modules/           # moduły: linux, containers, proxmox, pbs, ceph (+ wspólny aptrepo)
 │   ├── registry/          # rejestr narzędzi, tiery, health checks
 │   ├── server/            # serwer MCP (Streamable HTTP, Bearer, TLS, health_summary)
 │   ├── tier/              # poziomy uprawnień
@@ -339,7 +344,7 @@ omnibusmcp/
 **Gotowe**
 
 - Rdzeń: konfiguracja, rejestr narzędzi z tierami, executor, audyt, auto-detekcja modułów
-- Moduły Tier 1 (read-only): linux, containers (Docker), proxmox (Proxmox VE), pbs (Proxmox Backup Server)
+- Moduły Tier 1 (read-only): linux, containers (Docker), proxmox (Proxmox VE), pbs (Proxmox Backup Server), ceph (cephadm i pakiety, także pveceph; testy na klastrach w toku)
 - `health_summary`, instalacja jako usługa systemd z hardeningiem, `status`, TLS self-signed z automatycznym odnawianiem
 - Zgodność wersji produktów, tolerancyjny dekoder JSON, testy kontraktowe na zanonimizowanych nagraniach API
 - Wydania binarne linux/amd64 i linux/arm64 z sumami SHA256
@@ -347,8 +352,7 @@ omnibusmcp/
 
 **Planowane**
 
-- Tier 2: restartowanie usług
-- Moduł ceph (cephadm, pveceph)
+- Tier 2: restartowanie usług (w tym demonów Ceph)
 - Podman w module containers
 
 ## Autor

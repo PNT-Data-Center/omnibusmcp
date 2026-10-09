@@ -1,0 +1,104 @@
+{
+  "created": "2023-04-24T11:39:29.305055Z",
+  "disallowed_leaders: ": "",
+  "election_strategy": 1,
+  "epoch": 26,
+  "features": {
+    "optional": [],
+    "persistent": [
+      "kraken",
+      "luminous",
+      "mimic",
+      "osdmap-prune",
+      "nautilus",
+      "octopus",
+      "pacific",
+      "elector-pinging",
+      "quincy",
+      "reef"
+    ]
+  },
+  "fsid": "00000000-0000-0000-0000-000000000001",
+  "min_mon_release": 18,
+  "min_mon_release_name": "reef",
+  "modified": "2025-11-21T16:01:26.072538Z",
+  "mons": [
+    {
+      "addr": "192.0.2.10:6789/0",
+      "crush_location": "{}",
+      "name": "chost4",
+      "priority": 0,
+      "public_addr": "192.0.2.10:6789/0",
+      "public_addrs": {
+        "addrvec": [
+          {
+            "addr": "192.0.2.10:3300",
+            "nonce": 0,
+            "type": "v2"
+          },
+          {
+            "addr": "192.0.2.10:6789",
+            "nonce": 0,
+            "type": "v1"
+          }
+        ]
+      },
+      "rank": 0,
+      "weight": 0
+    },
+    {
+      "addr": "192.0.2.11:6789/0",
+      "crush_location": "{}",
+      "name": "chost6",
+      "priority": 0,
+      "public_addr": "192.0.2.11:6789/0",
+      "public_addrs": {
+        "addrvec": [
+          {
+            "addr": "192.0.2.11:3300",
+            "nonce": 0,
+            "type": "v2"
+          },
+          {
+            "addr": "192.0.2.11:6789",
+            "nonce": 0,
+            "type": "v1"
+          }
+        ]
+      },
+      "rank": 1,
+      "weight": 0
+    },
+    {
+      "addr": "192.0.2.12:6789/0",
+      "crush_location": "{}",
+      "name": "chost5",
+      "priority": 0,
+      "public_addr": "192.0.2.12:6789/0",
+      "public_addrs": {
+        "addrvec": [
+          {
+            "addr": "192.0.2.12:3300",
+            "nonce": 0,
+            "type": "v2"
+          },
+          {
+            "addr": "192.0.2.12:6789",
+            "nonce": 0,
+            "type": "v1"
+          }
+        ]
+      },
+      "rank": 2,
+      "weight": 0
+    }
+  ],
+  "quorum": [
+    0,
+    1,
+    2
+  ],
+  "removed_ranks: ": "",
+  "stretch_mode": false,
+  "tiebreaker_mon": ""
+}

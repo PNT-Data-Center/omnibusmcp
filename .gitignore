@@ -17,3 +17,6 @@ config.local.yaml
 .vscode/
 *.swp
 .DS_Store
+
+# Local survey reports (production host data)
+tmp/

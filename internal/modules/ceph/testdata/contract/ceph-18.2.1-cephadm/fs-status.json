@@ -1,0 +1,54 @@
+{
+  "clients": [
+    {
+      "clients": 5,
+      "fs": "cfs1"
+    }
+  ],
+  "mds_version": [
+    {
+      "daemon": [
+        "mds.chost4.lmobte",
+        "mds.chost5.wjmnxp",
+        "mds.chost6.ucabhd"
+      ],
+      "version": "ceph version 18.2.1 (7fe91d5d5842e04be3b4f514d6dd990c54b29c76) reef (stable)"
+    }
+  ],
+  "mdsmap": [
+    {
+      "caps": 191,
+      "dirs": 262281,
+      "dns": 742223,
+      "inos": 734572,
+      "name": "mds.chost4.lmobte",
+      "rank": 0,
+      "rate": 0,
+      "state": "active"
+    },
+    {
+      "name": "mds.chost5.wjmnxp",
+      "state": "standby"
+    },
+    {
+      "name": "mds.chost6.ucabhd",
+      "state": "standby"
+    }
+  ],
+  "pools": [
+    {
+      "avail": 13613717782528,
+      "id": 20,
+      "name": "cpool11",
+      "type": "metadata",
+      "used": 5227844107
+    },
+    {
+      "avail": 13613717782528,
+      "id": 19,
+      "name": "cpool10",
+      "type": "data",
+      "used": 3265267949568
+    }
+  ]
+}

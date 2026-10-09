@@ -1,0 +1,20 @@
+{
+  "mds": {
+    "ceph version 18.2.1 (7fe91d5d5842e04be3b4f514d6dd990c54b29c76) reef (stable)": 3
+  },
+  "mgr": {
+    "ceph version 18.2.1 (7fe91d5d5842e04be3b4f514d6dd990c54b29c76) reef (stable)": 3
+  },
+  "mon": {
+    "ceph version 18.2.1 (7fe91d5d5842e04be3b4f514d6dd990c54b29c76) reef (stable)": 3
+  },
+  "osd": {
+    "ceph version 18.2.1 (7fe91d5d5842e04be3b4f514d6dd990c54b29c76) reef (stable)": 72
+  },
+  "overall": {
+    "ceph version 18.2.1 (7fe91d5d5842e04be3b4f514d6dd990c54b29c76) reef (stable)": 84
+  },
+  "rgw": {
+    "ceph version 18.2.1 (7fe91d5d5842e04be3b4f514d6dd990c54b29c76) reef (stable)": 3
+  }
+}

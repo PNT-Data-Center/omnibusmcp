@@ -22,12 +22,13 @@ const (
 	PVE       Product = "pve"
 	PBS       Product = "pbs"
 	Docker    Product = "docker"
+	Ceph      Product = "ceph"
 )
 
 // names are human-readable product names.
 var names = map[Product]string{
 	Debian: "Debian", Ubuntu: "Ubuntu", AlmaLinux: "AlmaLinux",
-	PVE: "Proxmox VE", PBS: "Proxmox Backup Server", Docker: "Docker Engine",
+	PVE: "Proxmox VE", PBS: "Proxmox Backup Server", Docker: "Docker Engine", Ceph: "Ceph",
 }
 
 // Tested lists "major.minor" versions with an e2e test report in
@@ -37,6 +38,7 @@ var Tested = map[Product][]string{
 	PVE:    {"9.2"},
 	PBS:    {"4.0"},
 	Docker: {"29.8"},
+	Ceph:   {"18.2"},
 }
 
 // Name returns the display name of p.

@@ -1,0 +1,19 @@
+{
+  "pg_ready": true,
+  "pg_summary": {
+    "io_sec": 1,
+    "num_bytes": 22538023690252,
+    "num_pg_by_state": [
+      {
+        "name": "active+clean",
+        "num": 2529
+      }
+    ],
+    "num_pgs": 2529,
+    "read_bytes_sec": 107204,
+    "total_avail_bytes": 252884934647808,
+    "total_bytes": 320955834433536,
+    "total_used_bytes": 68070899785728,
+    "total_used_raw_bytes": 68070899785728
+  }
+}

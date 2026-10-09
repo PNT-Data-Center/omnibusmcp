@@ -8,11 +8,11 @@
 | **[containers](containers.md)** | Docker: runtime, kontenery, logi, statystyki, zajętość dysku, sieci, zdarzenia | 8 narzędzi | `docker` + `/run/docker.sock` |
 | **[proxmox](proxmox.md)** | Proxmox VE: węzeł, klaster/kworum, VM i kontenery, storage, zadania, aktualizacje, backupy | 10 narzędzi | `/etc/pve` + `pvesh` |
 | **[pbs](pbs.md)** | Proxmox Backup Server: datastore'y, garbage collection, backupy, zadania, aktualizacje | 8 narzędzi | `/etc/proxmox-backup` + `proxmox-backup-debug` |
-| ceph | — | — | planowany |
+| **[ceph](ceph.md)** | Ceph (cephadm, Proxmox VE pveceph): stan klastra, OSD, pule, PG, CephFS; demony, dyski, crashe i logi tego hosta | 9 narzędzi (7 w trybie pełnym) | `/etc/pve/ceph.conf` lub dane demonów w `/var/lib/ceph` |
 
 ## Konfiguracja modułów
 
-Moduły w OmnibusMCP są definiowane w sekcji `modules:` w `/etc/omnibusmcp/config.yaml`. Domyślnie włączony jest moduł `linux` (zawsze). Pozostałe moduły (obecnie `containers`, `proxmox` i `pbs`; `ceph` planowany) mogą być auto-wykrywane lub wymuszone jawnie.
+Moduły w OmnibusMCP są definiowane w sekcji `modules:` w `/etc/omnibusmcp/config.yaml`. Domyślnie włączony jest moduł `linux` (zawsze). Pozostałe moduły (`containers`, `proxmox`, `pbs` i `ceph`) mogą być auto-wykrywane lub wymuszone jawnie.
 
 ### Tryb auto-detekcji
 
@@ -33,6 +33,9 @@ Moduły w OmnibusMCP są definiowane w sekcji `modules:` w `/etc/omnibusmcp/conf
 - **pbs** — dostępny, jeśli istnieje:
   - Katalog `/etc/proxmox-backup`
   - **i** polecenie `proxmox-backup-debug`
+- **ceph** — dostępny, jeśli istnieje:
+  - Konfiguracja klastra Proxmox VE `/etc/pve/ceph.conf`, **albo** katalogi demonów w `/var/lib/ceph`
+  - Same pakiety klienckie (np. `ceph-common` na węźle Proxmox) nie włączają modułu
 
 ### Jawna lista modułów
 
@@ -55,7 +58,7 @@ Moduły w OmnibusMCP są definiowane w sekcji `modules:` w `/etc/omnibusmcp/conf
 - **Nieznana nazwa modułu** (np. `modules: [linux, unknownmodule]`) → Błąd konfiguracji
   - Kod wyjścia: **78** (`EX_CONFIG`)
   - Usługa **nie restartuje się w pętli** (`RestartPreventExitStatus=78`)
-  - Dostępne nazwy: `linux`, `containers`, `proxmox`, `pbs` (moduł `ceph` jeszcze nie istnieje; jego nazwa spowoduje ten błąd)
+  - Dostępne nazwy: `linux`, `containers`, `ceph`, `proxmox`, `pbs`
   - Błąd widoczny w: `sudo systemctl status omnibusmcp` lub `sudo journalctl -u omnibusmcp -n 50`
 
 - **Wymuszenie modułu, którego oprogramowanie nie ma zainstalowanego**

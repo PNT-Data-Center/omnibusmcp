@@ -41,7 +41,31 @@ type Config struct {
 	// AuditLog is the JSON-lines audit file; "-" means stderr.
 	AuditLog string `yaml:"audit_log"`
 	Limits   Limits `yaml:"limits"`
+	Ceph     Ceph   `yaml:"ceph"`
 }
+
+// Ceph configures the ceph module. Empty paths mean the default locations.
+type Ceph struct {
+	// Conf is the cluster configuration (default: /etc/ceph/ceph.conf,
+	// then the config of a cephadm daemon on this host).
+	Conf string `yaml:"conf"`
+	// Keyring holds the read-only client.omnibusmcp key (default:
+	// /etc/omnibusmcp/ceph.client.omnibusmcp.keyring, then
+	// /etc/pve/priv/ceph.client.omnibusmcp.keyring).
+	Keyring string `yaml:"keyring"`
+	// Cluster is "auto" (query the cluster when a key is available) or
+	// "false" (only this host's view: daemons, crashes, logs).
+	Cluster string `yaml:"cluster"`
+}
+
+// Ceph.Cluster values.
+const (
+	CephClusterAuto = "auto"
+	CephClusterOff  = "false"
+)
+
+// ClusterView reports whether the ceph module may query the cluster.
+func (c Ceph) ClusterView() bool { return c.Cluster != CephClusterOff }
 
 // TLS enables HTTPS when both files are set.
 type TLS struct {
@@ -76,6 +100,7 @@ func Default() *Config {
 			HealthTimeout:  30 * time.Second,
 			MaxOutputBytes: 64 * 1024,
 		},
+		Ceph: Ceph{Cluster: CephClusterAuto},
 	}
 }
 
@@ -124,6 +149,18 @@ func (c *Config) Validate() error {
 	}
 	if c.Limits.MaxOutputBytes < 1024 {
 		return errors.New("limits: max_output_bytes must be >= 1024")
+	}
+	switch c.Ceph.Cluster {
+	case "":
+		c.Ceph.Cluster = CephClusterAuto
+	case CephClusterAuto, CephClusterOff:
+	default:
+		return fmt.Errorf("ceph.cluster %q: expected auto or false", c.Ceph.Cluster)
+	}
+	for name, p := range map[string]string{"ceph.conf": c.Ceph.Conf, "ceph.keyring": c.Ceph.Keyring} {
+		if p != "" && !filepath.IsAbs(p) {
+			return fmt.Errorf("%s %q: must be an absolute path", name, p)
+		}
 	}
 	return nil
 }

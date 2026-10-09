@@ -1,0 +1,220 @@
+{
+  "election_epoch": 184,
+  "fsid": "00000000-0000-0000-0000-000000000001",
+  "fsmap": {
+    "by_rank": [
+      {
+        "filesystem_id": 3,
+        "gid": 1894545,
+        "name": "mds.chost4.lmobte",
+        "rank": 0,
+        "status": "up:active"
+      }
+    ],
+    "epoch": 88736,
+    "id": 3,
+    "in": 1,
+    "max": 1,
+    "up": 1,
+    "up:standby": 2
+  },
+  "health": {
+    "checks": {},
+    "mutes": [],
+    "status": "HEALTH_OK"
+  },
+  "mgrmap": {
+    "available": true,
+    "modules": [
+      "alerts",
+      "cephadm",
+      "dashboard",
+      "iostat",
+      "nfs",
+      "prometheus",
+      "restful",
+      "rgw"
+    ],
+    "num_standbys": 2,
+    "services": {
+      "dashboard": "https://192.0.2.12:8443/",
+      "prometheus": "http://192.0.2.12:9283/"
+    }
+  },
+  "monmap": {
+    "epoch": 26,
+    "min_mon_release_name": "reef",
+    "num_mons": 3
+  },
+  "osdmap": {
+    "epoch": 63864,
+    "num_in_osds": 72,
+    "num_osds": 72,
+    "num_remapped_pgs": 0,
+    "num_up_osds": 72,
+    "osd_in_since": 1788182813,
+    "osd_up_since": 1789464035
+  },
+  "pgmap": {
+    "bytes_avail": 252884934647808,
+    "bytes_total": 320955834433536,
+    "bytes_used": 68070899785728,
+    "data_bytes": 22538023690252,
+    "num_objects": 10016151,
+    "num_pgs": 2529,
+    "num_pools": 14,
+    "pgs_by_state": [
+      {
+        "count": 2529,
+        "state_name": "active+clean"
+      }
+    ],
+    "read_bytes_sec": 94965,
+    "read_op_per_sec": 3,
+    "write_op_per_sec": 0
+  },
+  "progress_events": {},
+  "quorum": [
+    0,
+    1,
+    2
+  ],
+  "quorum_age": 12892834,
+  "quorum_names": [
+    "chost4",
+    "chost6",
+    "chost5"
+  ],
+  "servicemap": {
+    "epoch": 1297134,
+    "modified": "2026-10-09T10:55:41.527239+0000",
+    "services": {
+      "osd": {
+        "daemons": {
+          "70": {
+            "addr": "(unrecognized address family 0)/0",
+            "gid": 0,
+            "metadata": {},
+            "start_epoch": 0,
+            "start_stamp": "0.000000",
+            "task_status": {}
+          },
+          "summary": ""
+        }
+      },
+      "rgw": {
+        "daemons": {
+          "19402202": {
+            "addr": "192.0.2.12:0/835210685",
+            "gid": 19402202,
+            "metadata": {
+              "arch": "x86_64",
+              "ceph_release": "reef",
+              "ceph_version": "ceph version 18.2.1 (7fe91d5d5842e04be3b4f514d6dd990c54b29c76) reef (stable)",
+              "ceph_version_short": "18.2.1",
+              "container_hostname": "chost5.example.org",
+              "container_image": "quay.io/ceph/ceph@sha256:dd9f859e0dd1307841f0427a1935ff6349b16923b08c5d6f5dea913149f2f12d",
+              "cpu": "Intel(R) Xeon(R) Gold 6134 CPU @ 3.20GHz",
+              "distro": "centos",
+              "distro_description": "CentOS Stream 8",
+              "distro_version": "8",
+              "frontend_config#0": "beast port=8000",
+              "frontend_type#0": "beast",
+              "hostname": "chost5.example.org",
+              "id": "rwg.chost5.pqukxn",
+              "kernel_description": "#236-Ubuntu SMP Fri Apr 11 19:53:21 UTC 2025",
+              "kernel_version": "5.4.0-216-generic",
+              "mem_swap_kb": "8388604",
+              "mem_total_kb": "263606360",
+              "num_handles": "1",
+              "os": "Linux",
+              "pid": "7",
+              "realm_id": "00000000-0000-0000-0000-000000000075",
+              "realm_name": "default",
+              "zone_id": "00000000-0000-0000-0000-000000000074",
+              "zone_name": "default",
+              "zonegroup_id": "00000000-0000-0000-0000-000000000076",
+              "zonegroup_name": "default"
+            },
+            "start_epoch": 1167334,
+            "start_stamp": "2026-08-10T11:02:20.115454+0000",
+            "task_status": {}
+          },
+          "23130096": {
+            "addr": "192.0.2.10:0/1052798324",
+            "gid": 23130096,
+            "metadata": {
+              "arch": "x86_64",
+              "ceph_release": "reef",
+              "ceph_version": "ceph version 18.2.1 (7fe91d5d5842e04be3b4f514d6dd990c54b29c76) reef (stable)",
+              "ceph_version_short": "18.2.1",
+              "container_hostname": "chost4.example.org",
+              "container_image": "quay.io/ceph/ceph@sha256:dd9f859e0dd1307841f0427a1935ff6349b16923b08c5d6f5dea913149f2f12d",
+              "cpu": "Intel(R) Xeon(R) Gold 6134 CPU @ 3.20GHz",
+              "distro": "centos",
+              "distro_description": "CentOS Stream 8",
+              "distro_version": "8",
+              "frontend_config#0": "beast port=8000",
+              "frontend_type#0": "beast",
+              "hostname": "chost4.example.org",
+              "id": "rwg.chost4.edohau",
+              "kernel_description": "#188-Ubuntu SMP Wed Jan 10 09:51:01 UTC 2024",
+              "kernel_version": "5.4.0-170-generic",
+              "mem_swap_kb": "8388604",
+              "mem_total_kb": "263606264",
+              "num_handles": "1",
+              "os": "Linux",
+              "pid": "7",
+              "realm_id": "00000000-0000-0000-0000-000000000075",
+              "realm_name": "default",
+              "zone_id": "00000000-0000-0000-0000-000000000074",
+              "zone_name": "default",
+              "zonegroup_id": "00000000-0000-0000-0000-000000000076",
+              "zonegroup_name": "default"
+            },
+            "start_epoch": 1167334,
+            "start_stamp": "2026-08-10T11:02:19.986944+0000",
+            "task_status": {}
+          },
+          "23133046": {
+            "addr": "192.0.2.11:0/674134826",
+            "gid": 23133046,
+            "metadata": {
+              "arch": "x86_64",
+              "ceph_release": "reef",
+              "ceph_version": "ceph version 18.2.1 (7fe91d5d5842e04be3b4f514d6dd990c54b29c76) reef (stable)",
+              "ceph_version_short": "18.2.1",
+              "container_hostname": "chost6.example.org",
+              "container_image": "quay.io/ceph/ceph@sha256:dd9f859e0dd1307841f0427a1935ff6349b16923b08c5d6f5dea913149f2f12d",
+              "cpu": "Intel(R) Xeon(R) Gold 6134 CPU @ 3.20GHz",
+              "distro": "centos",
+              "distro_description": "CentOS Stream 8",
+              "distro_version": "8",
+              "frontend_config#0": "beast port=8000",
+              "frontend_type#0": "beast",
+              "hostname": "chost6.example.org",
+              "id": "rwg.chost6.cimzne",
+              "kernel_description": "#236-Ubuntu SMP Fri Apr 11 19:53:21 UTC 2025",
+              "kernel_version": "5.4.0-216-generic",
+              "mem_swap_kb": "8388604",
+              "mem_total_kb": "263606360",
+              "num_handles": "1",
+              "os": "Linux",
+              "pid": "6",
+              "realm_id": "00000000-0000-0000-0000-000000000075",
+              "realm_name": "default",
+              "zone_id": "00000000-0000-0000-0000-000000000074",
+              "zone_name": "default",
+              "zonegroup_id": "00000000-0000-0000-0000-000000000076",
+              "zonegroup_name": "default"
+            },
+            "start_epoch": 1167334,
+            "start_stamp": "2026-08-10T11:02:19.990217+0000",
+            "task_status": {}
+          },
+          "summary": ""
+        }
+      }
+    }
+  }
+}

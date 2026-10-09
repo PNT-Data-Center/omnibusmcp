@@ -1,0 +1,24 @@
+{
+  "files": [
+    "crash-ls.json",
+    "df-detail.json",
+    "fs-ls.json",
+    "fs-status.json",
+    "health-detail.json",
+    "mgr-stat.json",
+    "mon-dump.json",
+    "orch-ps.json",
+    "osd-blocked-by.json",
+    "osd-df-tree.json",
+    "osd-dump.json",
+    "osd-perf.json",
+    "osd-pool-autoscale-status.json",
+    "osd-pool-ls-detail.json",
+    "pg-dump-stuck.json",
+    "pg-stat.json",
+    "status.json",
+    "versions.json"
+  ],
+  "product": "ceph",
+  "version": "18.2.1"
+}

@@ -25,7 +25,7 @@ func TestAssess(t *testing.T) {
 			t.Errorf("%q: %+v", c.v, r)
 		}
 	}
-	if r := Assess("ceph", "19.2"); r.Tested || r.Note != "not tested with OmnibusMCP yet" {
+	if r := Assess("kubernetes", "1.31"); r.Tested || r.Note != "not tested with OmnibusMCP yet" {
 		t.Fatalf("%+v", r)
 	}
 	if s := Assess(PBS, "4.0.11").String(); s != "Proxmox Backup Server 4.0.11 (tested)" {
@@ -72,5 +72,11 @@ func TestParseOSRelease(t *testing.T) {
 	p, v = parseOSRelease("ID=\"almalinux\"\nVERSION_ID=\"9.6\"\n")
 	if p != AlmaLinux || v != "9.6" {
 		t.Fatalf("%s %s", p, v)
+	}
+}
+
+func TestCephTested(t *testing.T) {
+	if !Assess(Ceph, "18.2.1").Tested || Assess(Ceph, "19.2.3").Tested {
+		t.Fatal("Ceph tested table")
 	}
 }

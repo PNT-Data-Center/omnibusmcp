@@ -1,0 +1,13 @@
+[
+  {
+    "data_pool_ids": [
+      19
+    ],
+    "data_pools": [
+      "cpool10"
+    ],
+    "metadata_pool": "cpool11",
+    "metadata_pool_id": 20,
+    "name": "cfs1"
+  }
+]

@@ -56,3 +56,26 @@ func TestValidate(t *testing.T) {
 		t.Errorf("insecure remote explicitly allowed: %v", err)
 	}
 }
+
+func TestCephSection(t *testing.T) {
+	dir := t.TempDir()
+	for body, want := range map[string]string{
+		"":                          CephClusterAuto,
+		"ceph:\n  cluster: false\n": CephClusterOff,
+		"ceph:\n  cluster: auto\n":  CephClusterAuto,
+	} {
+		p := filepath.Join(dir, "c.yaml")
+		os.WriteFile(p, []byte(body), 0o600)
+		cfg, _, err := Load(p)
+		if err != nil || cfg.Ceph.Cluster != want || cfg.Ceph.ClusterView() != (want == CephClusterAuto) {
+			t.Errorf("%q: %v %+v", body, err, cfg)
+		}
+	}
+	for _, body := range []string{"ceph:\n  cluster: yes-please\n", "ceph:\n  keyring: relative/key\n", "ceph:\n  conf: ceph.conf\n"} {
+		p := filepath.Join(dir, "c.yaml")
+		os.WriteFile(p, []byte(body), 0o600)
+		if _, _, err := Load(p); err == nil {
+			t.Errorf("%q accepted", body)
+		}
+	}
+}
