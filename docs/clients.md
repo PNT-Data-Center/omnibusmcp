@@ -10,7 +10,7 @@ Serwer ma certyfikat podpisany przez własne, jednorazowe CA (patrz [HTTPS / TLS
 sudo omnibusmcp tls client-setup            # adres z listen; inny: --host host.example.com
 ```
 
-Ta sama instrukcja jest pod adresem głównym serwera (`curl -k https://192.0.2.10:8765/` albo przeglądarka), bez tokenu i bez dostępu do serwera. Poniżej jest ten sam tekst, dla adresu `192.0.2.10`.
+Ta sama instrukcja jest pod adresem głównym serwera (`curl -k https://192.0.2.10:8765/` albo przeglądarka), bez tokenu i bez dostępu do serwera. Przeglądarka dostaje sformatowaną stronę z przyciskami „Kopiuj” przy każdym poleceniu; `curl` dostaje czysty tekst. Poniżej jest ten sam tekst, dla adresu `192.0.2.10`.
 
 Polecenia pobierają CA bez sprawdzania odcisku (trust on first use). Zasady bezpieczeństwa i opcjonalne ręczne porównanie odcisku: [HTTPS / TLS](tls.md) i [Bezpieczeństwo](security.md).
 
@@ -73,7 +73,11 @@ install -d -m 700 ~/.config/omnibusmcp
 claude mcp add --transport http --scope user 192-0-2-10 https://192.0.2.10:8765/mcp --header 'Authorization: Bearer ${OMNIBUS_TOKEN_192_0_2_10}'
 ```
 
-Sprawdzenie: `claude mcp list`.
+Sprawdzenie:
+
+```bash
+claude mcp list
+```
 
 Szczegóły, w tym dlaczego nagłówek musi być w apostrofach, opisane są w sekcji [Claude Code](#claude-code) poniżej.
 

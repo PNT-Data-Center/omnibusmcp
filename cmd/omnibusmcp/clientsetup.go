@@ -60,7 +60,21 @@ func printClientSetup(cfg *config.Config, host string) error {
 	t := clientsetup.Target{Host: host, Port: port}
 
 	fmt.Printf("%s %s\n\n", ui.Bold("OmnibusMCP: konfiguracja klienta dla"), ui.Cyan(t.MCPURL()))
-	fmt.Print(clientsetup.Instructions(t, cfg.TokenFile))
+	fmt.Print(clientsetup.Render(clientsetup.Steps(t, cfg.TokenFile), colorStyle))
 	fmt.Printf("\n%s\n", ui.Dim("Ta sama instrukcja: curl -k "+t.BaseURL()+"/"))
 	return nil
+}
+
+// colorStyle renders the steps for a terminal: headings stand out,
+// explanations are dimmed and commands stay plain, so they copy cleanly.
+func colorStyle(b clientsetup.Block) string {
+	switch b.Kind {
+	case clientsetup.Heading:
+		return ui.Bold(ui.Cyan("## " + b.Text))
+	case clientsetup.Subheading:
+		return ui.Bold("### " + b.Text)
+	case clientsetup.Text:
+		return ui.Dim(b.Text)
+	}
+	return b.Text
 }

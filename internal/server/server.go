@@ -338,7 +338,8 @@ func Handler(s *mcp.Server, token string, a *audit.Logger, pub *Public) http.Han
 const CAPath = clientsetup.CAPath
 
 // landingHandler serves instructions for new clients at "/": what this
-// endpoint is and how to trust its CA. The URLs use the host the client
+// endpoint is and how to trust its CA, as HTML for browsers and as plain
+// text otherwise. The URLs use the host the client
 // asked for, so they match what the client can reach.
 func landingHandler(pub *Public) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -350,8 +351,18 @@ func landingHandler(pub *Public) http.HandlerFunc {
 			t.Host = r.Host
 		}
 		_, err := certs.ReadCA(pub.CAFile) // only an OmnibusMCP CA is offered
-		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 		w.Header().Set("Cache-Control", "no-store")
+		w.Header().Set("Vary", "Accept")
+		w.Header().Set("X-Content-Type-Options", "nosniff")
+		// Browsers get HTML, curl and other tools plain text.
+		if strings.Contains(r.Header.Get("Accept"), "text/html") {
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			w.Header().Set("Content-Security-Policy", clientsetup.PageCSP)
+			w.Header().Set("Referrer-Policy", "no-referrer")
+			w.Write(clientsetup.LandingHTML(t, err == nil, pub.TokenFile))
+			return
+		}
+		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 		w.Write([]byte(clientsetup.LandingPage(t, err == nil, pub.TokenFile)))
 	}
 }

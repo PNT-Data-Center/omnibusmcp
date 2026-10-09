@@ -337,8 +337,24 @@ func TestCAEndpoint(t *testing.T) {
 	if resp.StatusCode != http.StatusOK || !strings.Contains(string(page), "https://"+host+"/ca.pem") {
 		t.Fatalf("landing page %d:\n%s", resp.StatusCode, page)
 	}
-	// A forged Host header is not echoed into the commands.
+	if ct := resp.Header.Get("Content-Type"); !strings.HasPrefix(ct, "text/plain") {
+		t.Fatalf("landing page for curl: %s", ct)
+	}
+	// Browsers get the HTML page under a strict CSP.
 	req, _ := http.NewRequest("GET", ts.URL+"/", nil)
+	req.Header.Set("Accept", "text/html,application/xhtml+xml,*/*;q=0.8")
+	resp, err = insecure.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	page, _ = io.ReadAll(resp.Body)
+	resp.Body.Close()
+	if !strings.HasPrefix(resp.Header.Get("Content-Type"), "text/html") || !strings.Contains(resp.Header.Get("Content-Security-Policy"), "default-src 'none'") ||
+		!strings.Contains(string(page), "https://"+host+"/ca.pem") || !strings.Contains(string(page), "Kopiuj") {
+		t.Fatalf("HTML landing page %v:\n%s", resp.Header, page)
+	}
+	// A forged Host header is not echoed into the commands.
+	req, _ = http.NewRequest("GET", ts.URL+"/", nil)
 	req.Host = "evil.example;rm -rf /"
 	resp, err = insecure.Do(req)
 	if err != nil {

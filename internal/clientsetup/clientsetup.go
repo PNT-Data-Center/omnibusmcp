@@ -87,33 +87,82 @@ func (t Target) RHELTrust() string {
 // NodeEnv is the one profile line Node.js clients need for every server.
 const NodeEnv = `export NODE_EXTRA_CA_CERTS="$HOME/.config/omnibusmcp/ca-bundle.pem"`
 
-// Instructions are the client setup steps shared by "omnibusmcp tls
-// client-setup", the landing page and the documentation. The CA is
-// downloaded without verification (trust on first use).
+// Kind is the role of a Block in the instructions.
+type Kind int
+
+const (
+	Heading    Kind = iota // "1. Zaufanie do certyfikatu serwera"
+	Subheading             // "Gemini CLI i inne klienty Node.js (bez sudo)"
+	Text                   // explanation
+	Command                // lines to copy into a shell, as they are
+)
+
+// Block is one element of the instructions.
+type Block struct {
+	Kind Kind
+	Text string
+}
+
+// Steps are the client setup steps shared by "omnibusmcp tls
+// client-setup", the landing page and the documentation, each rendering
+// them in its own format. The CA is downloaded without verification
+// (trust on first use).
+func Steps(t Target, serverTokenFile string) []Block {
+	cmd := func(s string) Block { return Block{Command, strings.TrimSuffix(s, "\n")} }
+	return []Block{
+		{Heading, "1. Zaufanie do certyfikatu serwera"},
+		{Subheading, "Gemini CLI i inne klienty Node.js (bez sudo)"},
+		cmd(t.NodeTrust()),
+		{Text, "W ~/.bashrc wystarczy raz dodać (jedna linia dla wszystkich serwerów):"},
+		cmd(NodeEnv),
+		{Subheading, "Claude Code, curl i reszta systemu (sudo)"},
+		{Text, "Debian/Ubuntu:"},
+		cmd(t.DebianTrust()),
+		{Text, "RHEL/AlmaLinux:"},
+		cmd(t.RHELTrust()),
+		{Text, "Po odnowieniu certyfikatu na serwerze powtórz te same polecenia."},
+		{Heading, "2. Token"},
+		{Text, "Na serwerze:"},
+		cmd("sudo cat " + serverTokenFile),
+		{Text, "Na kliencie zapisz go w " + t.TokenFile() + " (chmod 600) i dodaj do ~/.bashrc:"},
+		cmd(t.ExportToken()),
+		{Heading, "3. Claude Code"},
+		cmd(t.ClaudeAdd()),
+		{Text, "Sprawdzenie:"},
+		cmd("claude mcp list"),
+	}
+}
+
+// Style formats one block of the text rendering.
+type Style func(Block) string
+
+// PlainStyle marks headings Markdown-style and leaves the rest as it is.
+func PlainStyle(b Block) string {
+	switch b.Kind {
+	case Heading:
+		return "## " + b.Text
+	case Subheading:
+		return "### " + b.Text
+	}
+	return b.Text
+}
+
+// Render lays the steps out as text, one block per line group, with a
+// blank line before every heading.
+func Render(steps []Block, style Style) string {
+	var sb strings.Builder
+	for i, b := range steps {
+		if i > 0 && (b.Kind == Heading || b.Kind == Subheading) {
+			sb.WriteString("\n")
+		}
+		sb.WriteString(style(b) + "\n")
+	}
+	return sb.String()
+}
+
+// Instructions are the steps as plain text.
 func Instructions(t Target, serverTokenFile string) string {
-	return fmt.Sprintf(`## 1. Zaufanie do certyfikatu serwera
-
-### Gemini CLI i inne klienty Node.js (bez sudo)
-%s
-W ~/.bashrc wystarczy raz dodać (jedna linia dla wszystkich serwerów):
-%s
-
-### Claude Code, curl i reszta systemu (sudo)
-Debian/Ubuntu:
-%s
-RHEL/AlmaLinux:
-%s
-Po odnowieniu certyfikatu na serwerze powtórz te same polecenia.
-
-## 2. Token
-Na serwerze: sudo cat %s
-Na kliencie zapisz go w %s (chmod 600) i dodaj do ~/.bashrc:
-%s
-
-## 3. Claude Code
-%s
-Sprawdzenie: claude mcp list
-`, t.NodeTrust(), NodeEnv, t.DebianTrust(), t.RHELTrust(), serverTokenFile, t.TokenFile(), t.ExportToken(), t.ClaudeAdd())
+	return Render(Steps(t, serverTokenFile), PlainStyle)
 }
 
 // ClientHost picks the address clients most likely use: the listen address

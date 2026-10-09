@@ -67,7 +67,7 @@ Wynik to instrukcja w trzech krokach, ta sama, którą serwer podaje pod adresem
 
 ## Strona z instrukcją pod adresem głównym
 
-Pod `https://HOST:8765/` serwer zwraca bez tokenu instrukcję w formacie Markdown, po polsku (`curl -k https://HOST:8765/` lub przeglądarka). Na początku jest adres MCP, a dalej te same kroki co w `omnibusmcp tls client-setup` (zaufanie do certyfikatu, token, Claude Code), z adresem hosta, pod którym klient się połączył. Adresy na stronie używają nazwy hosta, pod którą klient się połączył (nagłówek `Host`, odrzucany przy nietypowych znakach); ścieżka tokenu pochodzi z konfiguracji.
+Pod `https://HOST:8765/` serwer zwraca bez tokenu instrukcję po polsku. Przeglądarka dostaje sformatowaną stronę HTML z przyciskami „Kopiuj” przy każdym poleceniu, a `curl -k https://HOST:8765/` czysty tekst (serwer wybiera format nagłówkiem `Accept`). Na początku jest adres MCP, a dalej te same kroki co w `omnibusmcp tls client-setup` (zaufanie do certyfikatu, token, Claude Code), z adresem hosta, pod którym klient się połączył. Adresy na stronie używają nazwy hosta, pod którą klient się połączył (nagłówek `Host`, odrzucany przy nietypowych znakach); ścieżka tokenu pochodzi z konfiguracji.
 
 ## Migracja ze starych certyfikatów self-signed
 
