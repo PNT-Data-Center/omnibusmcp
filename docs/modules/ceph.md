@@ -107,7 +107,7 @@ Wszystkie narzędzia są w Tier 1 (tylko odczyt).
 | Narzędzie | Co zwraca | Parametry |
 |-----------|-----------|-----------|
 | `ceph_local` | Instalacja (cephadm, pveceph, pakiety), demony tego hosta i stan ich jednostek systemd (failed, nieaktualne jednostki przeniesionych demonów), mapowanie OSD na dyski, crashe niewysłane do klastra, dostępność widoku klastra | — |
-| `ceph_logs` | Logi z tego hosta: pliki (pakiety) lub journal (cephadm). Źródło: `cluster` (log klastra, tylko na hoście z monitorem), `audit` (polecenia wykonane w klastrze, z zamaskowanymi sekretami) albo demon tego hosta (`osd.3`, `mon.a`). Poziom: `warn` (domyślnie), `error`, `all`. | `source`, `level`, `lines` (domyślnie 100, max 1000), `grep` |
+| `ceph_logs` | Logi z tego hosta: pliki (pakiety) lub journal (cephadm). Źródło: `cluster` (log klastra, tylko na hoście z monitorem), `audit` (polecenia wykonane w klastrze, z zamaskowanymi sekretami) albo demon tego hosta (`osd.3`, `mon.a`). Poziom: `error`, `warn` (domyślnie), `info` (domyślnie dla `audit`: zmiany są zapisywane na poziomie info, odczyty na debug), `all`. | `source`, `level`, `lines` (domyślnie 100, max 1000), `grep` |
 
 ### Widok klastra (tryb pełny)
 
@@ -146,6 +146,7 @@ Progi zapełnienia OSD (nearfull, backfillfull, full) pochodzą z ustawień klas
 ## Ograniczenia
 
 - **Log klastra i audytu** (`ceph_logs` z `source: cluster` lub `audit`) są dostępne tylko na hostach z monitorem. Na pozostałych moduł podpowiada, gdzie szukać.
+- **cephadm nie zapisuje domyślnie logu klastra** ani do journala monitora, ani do pliku (log audytu w journalu jest). Aby `source: cluster` działało, włącz zapis do pliku na hostach z monitorem: `ceph config set mon mon_cluster_log_to_file true`; moduł czyta wtedy `/var/log/ceph/<fsid>/ceph.log`. Instalacje pakietowe (Proxmox VE) zapisują `ceph.log` domyślnie.
 - **`ceph log last` nie jest używane**: w wydaniach reef i tentacle zwraca pustą listę, więc logi czytane są lokalnie (pliki lub journal).
 - **Maskowanie sekretów** w logu audytu: klucze Ceph (`AQ…`), pola `password`, `secret`, `token` oraz wartości `config-key set` i `config set` dla kluczy o nazwach zawierających `pass`, `secret`, `token`, `key` lub `cred`.
 - **Restart po zmianie klucza lub konfiguracji**: tryb (pełny lub lokalny) ustala się przy starcie usługi. Dodanie klucza wymaga `sudo systemctl restart omnibusmcp`.

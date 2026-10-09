@@ -39,11 +39,22 @@ func TestLineFilter(t *testing.T) {
 		"2026-10-09T08:51:55.227+0200 7f3e9d976700  0 osd.3 1234 heartbeat_check: no reply from osd.2",
 		"2026-10-09T08:51:56.227+0200 7f3e9d976700  5 osd.3 debug noise",
 	}
-	if got := pick(daemon, lineFilter("osd.3", "warn", "")); len(got) != 2 || got[0] != 0 || got[1] != 2 {
+	// Level 0 is informational: on monitors one line per command.
+	if got := pick(daemon, lineFilter("osd.3", "warn", "")); len(got) != 1 || got[0] != 0 {
 		t.Errorf("daemon warn: %v", got)
+	}
+	if got := pick(daemon, lineFilter("osd.3", "info", "")); len(got) != 2 || got[1] != 2 {
+		t.Errorf("daemon info: %v", got)
 	}
 	if got := pick(daemon, lineFilter("osd.3", "error", "")); len(got) != 1 || got[0] != 0 {
 		t.Errorf("daemon error: %v", got)
+	}
+	audit := []string{
+		"2026-10-09T13:34:47+0200 node bash[1]: debug 2026-10-09T11:34:47.429+0000 7faf  0 log_channel(audit) log [DBG] : from='client.? 192.0.2.1:0/1' entity='client.omnibusmcp' cmd=[{\"prefix\": \"versions\"}]: dispatch",
+		"2026-10-09T13:35:00+0200 node bash[1]: debug 2026-10-09T11:35:00.000+0000 7faf  0 log_channel(audit) log [INF] : from='client.admin' cmd=[{\"prefix\": \"osd set\", \"key\": \"noout\"}]: finished",
+	}
+	if got := pick(audit, lineFilter("audit", "info", "")); len(got) != 1 || got[0] != 1 {
+		t.Errorf("audit info: %v", got)
 	}
 }
 

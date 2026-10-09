@@ -38,7 +38,7 @@ var Tested = map[Product][]string{
 	PVE:    {"9.2"},
 	PBS:    {"4.0"},
 	Docker: {"29.8"},
-	Ceph:   {"18.2"},
+	Ceph:   {"18.2", "20.2"},
 }
 
 // Name returns the display name of p.

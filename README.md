@@ -2,7 +2,7 @@
 
 Dedykowany serwer Model Context Protocol (MCP) dla hostów Linux, umożliwiający agentom LLM szybką diagnozę bieżącego stanu serwera i kluczowych usług infrastrukturalnych.
 
-**Status**: Wersja 0.6.0 — etapy 2–5 ukończone, moduły linux, containers (Docker), proxmox, pbs, ceph (Tier 1). Wykonanie: Go 1.25+, go-sdk v1.8.0, 47 narzędzi (46 w modułach + health\_summary), audyt, tiery, executor (RunData, limit równoczesnych), serwer HTTP/Bearer, install/uninstall/status/upgrade, TLS, hardening systemd, kolory CLI, zgodność wersji. Testowane na Debian 13, Proxmox VE 9.2, Proxmox Backup Server 4.0 i Ceph 18.2.
+**Status**: Wersja 0.6.1 — etapy 2–5 ukończone, moduły linux, containers (Docker), proxmox, pbs, ceph (Tier 1). Wykonanie: Go 1.25+, go-sdk v1.8.0, 47 narzędzi (46 w modułach + health\_summary), audyt, tiery, executor (RunData, limit równoczesnych), serwer HTTP/Bearer, install/uninstall/status/upgrade, TLS, hardening systemd, kolory CLI, zgodność wersji. Testowane na Debian 13, Proxmox VE 9.2, Proxmox Backup Server 4.0 i Ceph 18.2 / 20.2.
 
 ## Funkcjonalności
 
@@ -102,7 +102,7 @@ Opcje skryptu: `--version vX.Y.Z`, `--install [parametry]`, `--help`; zmienne: `
 Każde wydanie zawiera statyczne binarki `omnibusmcp-linux-amd64` i `omnibusmcp-linux-arm64` oraz plik `SHA256SUMS`.
 
 ```bash
-VER=v0.6.0
+VER=v0.6.1
 ARCH=$(dpkg --print-architecture 2>/dev/null || uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')
 
 BASE="https://github.com/PNT-Data-Center/omnibusmcp/releases/download/$VER"
@@ -111,7 +111,7 @@ curl -fsSLO "$BASE/SHA256SUMS"
 
 sha256sum -c --ignore-missing SHA256SUMS
 install -m 0755 "omnibusmcp-linux-$ARCH" /usr/local/bin/omnibusmcp
-omnibusmcp version            # omnibusmcp v0.6.0
+omnibusmcp version            # omnibusmcp v0.6.1
 omnibusmcp install            # dalej: docs/service.md
 ```
 
@@ -121,10 +121,10 @@ omnibusmcp install            # dalej: docs/service.md
 
 ```bash
 # Zainstaluj wydanie bezpośrednio przez Go (Go 1.25+)
-go install github.com/PNT-Data-Center/omnibusmcp/cmd/omnibusmcp@v0.6.0
+go install github.com/PNT-Data-Center/omnibusmcp/cmd/omnibusmcp@v0.6.1
 
 # Binarka zainstalowana w $GOPATH/bin/omnibusmcp (domyślnie ~/go/bin/)
-omnibusmcp version            # omnibusmcp v0.6.0
+omnibusmcp version            # omnibusmcp v0.6.1
 ```
 
 **Build ze źródeł z wersją**:
@@ -134,8 +134,8 @@ omnibusmcp version            # omnibusmcp v0.6.0
 git clone https://github.com/PNT-Data-Center/omnibusmcp.git
 cd omnibusmcp
 
-# Checkout wersji 0.6.0
-git checkout v0.6.0
+# Checkout wersji 0.6.1
+git checkout v0.6.1
 
 # Budowanie z wersją (pseudowersja z Git)
 CGO_ENABLED=0 go build -trimpath \
@@ -143,7 +143,7 @@ CGO_ENABLED=0 go build -trimpath \
   -o omnibusmcp ./cmd/omnibusmcp
 
 # Sprawdzenie wersji
-./omnibusmcp version          # omnibusmcp v0.6.0
+./omnibusmcp version          # omnibusmcp v0.6.1
 
 # Wyświetlenie dostępnych poleceń
 ./omnibusmcp --help

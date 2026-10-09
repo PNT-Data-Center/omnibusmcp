@@ -22,7 +22,7 @@ const tailBytes = 8 << 20
 
 type logsInput struct {
 	Source string `json:"source,omitempty" jsonschema:"cluster (default: the cluster log; only on hosts with a monitor), audit (commands run against the cluster), or a daemon of this host: osd.3, mon.host1, mgr.host1, mds.x"`
-	Level  string `json:"level,omitempty" jsonschema:"warn (default: warnings and errors), error, or all"`
+	Level  string `json:"level,omitempty" jsonschema:"error, warn (default), info (also informational entries: for audit the default, as changes are logged at info and reads at debug), or all"`
 	Lines  int    `json:"lines,omitempty" jsonschema:"number of last matching lines (default 100, max 1000)"`
 	Grep   string `json:"grep,omitempty" jsonschema:"only lines containing this text (case-insensitive)"`
 }
@@ -34,9 +34,15 @@ func (m *Module) logsTool(ctx context.Context, env *registry.Env, in logsInput) 
 	if !sourceRe.MatchString(src) || strings.Contains(src, "..") {
 		return "", fmt.Errorf("invalid source %q (cluster, audit or a daemon such as osd.3)", in.Source)
 	}
-	level := firstNonEmpty(in.Level, "warn")
-	if level != "warn" && level != "error" && level != "all" {
-		return "", fmt.Errorf("invalid level %q (warn, error, all)", in.Level)
+	level := in.Level
+	if level == "" {
+		level = "warn"
+		if src == "audit" {
+			level = "info"
+		}
+	}
+	if level != "error" && level != "warn" && level != "info" && level != "all" {
+		return "", fmt.Errorf("invalid level %q (error, warn, info, all)", in.Level)
 	}
 	if len(in.Grep) > 200 {
 		return "", fmt.Errorf("grep text too long")
@@ -72,7 +78,13 @@ func (m *Module) logsTool(ctx context.Context, env *registry.Env, in logsInput) 
 	if !r.OK() {
 		return "", fmt.Errorf("journalctl: %s", strings.TrimSpace(r.Format()))
 	}
-	return renderLog("journal of "+unit, r.Stdout, keep, lines), nil
+	out := renderLog("journal of "+unit, r.Stdout, keep, lines)
+	if channel == "cluster" && !strings.Contains(r.Stdout, "log_channel(cluster)") {
+		out += "\nThe monitor's journal holds no cluster log entries: cephadm does not send the cluster log there by default. " +
+			"To keep it in /var/log/ceph/" + s.FSID + "/ceph.log on the monitor hosts (read by this tool automatically): " +
+			"ceph config set mon mon_cluster_log_to_file true\n"
+	}
+	return out, nil
 }
 
 // logFile returns a non-empty log file for src, or "" (cephadm leaves the
@@ -136,31 +148,43 @@ func noLogHint(src string, units []unit) string {
 }
 
 // lineFilter keeps lines of the requested level and text. Cluster and
-// audit lines carry [DBG] [INF] [WRN] [ERR]; daemon lines a numeric level
-// after the thread id, where -1 is an error and 0 important.
+// audit lines carry [DBG] [INF] [WRN] [ERR] [SEC]; daemon lines a numeric
+// level after the thread id: -1 errors, 0 informational (on monitors
+// mostly one line per command), higher values debug output.
 func lineFilter(src, level, grep string) func(string) bool {
 	grep = strings.ToLower(grep)
 	return func(l string) bool {
 		if grep != "" && !strings.Contains(strings.ToLower(l), grep) {
 			return false
 		}
-		switch level {
-		case "all":
-			return true
-		case "error":
-			return strings.Contains(l, "[ERR]") || daemonLevel(l) == -1 && !strings.Contains(l, "[DBG]") && !strings.Contains(l, "[INF]") && !strings.Contains(l, "[WRN]")
-		}
-		if strings.Contains(l, "[WRN]") || strings.Contains(l, "[ERR]") || strings.Contains(l, "[SEC]") {
+		if level == "all" {
 			return true
 		}
-		if strings.Contains(l, "[DBG]") || strings.Contains(l, "[INF]") {
-			return false // cluster log entries echoed by a daemon at level 0
+		var tagged int // severity of a [XXX] tag: 0 none, 1 debug ... 4 error
+		switch {
+		case strings.Contains(l, "[ERR]"):
+			tagged = 4
+		case strings.Contains(l, "[WRN]") || strings.Contains(l, "[SEC]"):
+			tagged = 3
+		case strings.Contains(l, "[INF]"):
+			tagged = 2
+		case strings.Contains(l, "[DBG]"):
+			tagged = 1
 		}
-		if src == "audit" {
-			return false // audit entries are [INF]; only warnings pass
+		if tagged == 0 {
+			switch lv := daemonLevel(l); {
+			case lv == -1:
+				tagged = 4
+			case lv == 0:
+				tagged = 2
+			case lv != 99:
+				tagged = 1
+			default:
+				tagged = 2 // untagged text (e.g. a container's stderr)
+			}
 		}
-		lv := daemonLevel(l)
-		return lv == -1 || lv == 0
+		min := map[string]int{"error": 4, "warn": 3, "info": 2}[level]
+		return tagged >= min
 	}
 }
 

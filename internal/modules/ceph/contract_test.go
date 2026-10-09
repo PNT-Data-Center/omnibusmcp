@@ -117,7 +117,7 @@ func TestContractCeph(t *testing.T) {
 				if len(orch) == 0 || orch[0].DaemonName == "" || orch[0].DaemonType == "" {
 					t.Errorf("orch ps not understood")
 				}
-				renderOrch(orch, "", "", "all", 500)
+				renderOrch("Daemons (orchestrator)", orch, "", "", "all", 500)
 			}
 		})
 	}

@@ -106,18 +106,41 @@ func TestDaemons(t *testing.T) {
 		{DaemonName: "osd.11", DaemonType: "osd", Hostname: "node2.example.com", Status: -1, StatusDesc: "error"},
 		{DaemonName: "mon.node4", DaemonType: "mon", Hostname: "node4.example.com", Status: 1, StatusDesc: "running"},
 	}
-	out := renderOrch(orch, "", "", "problems", 50)
+	out := renderOrch("Daemons (orchestrator)", orch, "", "", "problems", 50)
 	for _, w := range []string{"osd            1/2 running — 1 NOT RUNNING", "Daemons not running: 1", "osd.11  node2.example.com  error"} {
 		if !strings.Contains(out, w) {
 			t.Errorf("missing %q:\n%s", w, out)
 		}
 	}
-	if out := renderOrch(orch, "mon", "node4", "all", 50); !strings.Contains(out, "Daemons: 1") || !strings.Contains(out, "mon.node4") {
+	if out := renderOrch("Daemons (orchestrator)", orch, "mon", "node4", "all", 50); !strings.Contains(out, "Daemons: 1") || !strings.Contains(out, "mon.node4") {
 		t.Errorf("filters:\n%s", out)
 	}
 	vs := versions{"osd": {"ceph version 18.2.1 (a) reef (stable)": 70, "ceph version 18.2.7 (b) reef (stable)": 2},
 		"overall": {"ceph version 18.2.1 (a) reef (stable)": 76, "ceph version 18.2.7 (b) reef (stable)": 2}}
 	if out := renderVersions(vs, nil); !strings.Contains(out, "70 x 18.2.1, 2 x 18.2.7") || !strings.Contains(out, "MIXED VERSIONS") {
 		t.Errorf("%s", out)
+	}
+}
+
+func TestDaemonsFromMaps(t *testing.T) {
+	var st clusterStatus
+	mustJSON(t, `{"quorum_names":["a","b"],"monmap":{"num_mons":3}}`, &st)
+	var mons monDump
+	mustJSON(t, `{"mons":[{"rank":0,"name":"a"},{"rank":1,"name":"b"},{"rank":2,"name":"c"}]}`, &mons)
+	var mgr mgrDump
+	mustJSON(t, `{"active_name":"a","available":true,"standbys":[{"name":"b"},{"name":"c"}]}`, &mgr)
+	var tree osdDF
+	mustJSON(t, osdDFJSON, &tree)
+	var fs fsStatus
+	mustJSON(t, `{"mdsmap":[{"name":"mds.x","state":"active"},{"name":"mds.y","state":"up:replay"}]}`, &fs)
+	rows := mapDaemons(st, mons, nil, mgr, nil, tree, nil, fs, nil)
+	out := renderOrch("Daemons (cluster maps)", rows, "", "", "problems", 50)
+	for _, w := range []string{"mon            2/3 running — 1 NOT RUNNING", "mgr            3/3 running", "osd            3/4 running", "mon.c", "OUT OF QUORUM", "osd.2", "host2", "down, out", "mds.y", "up:replay"} {
+		if !strings.Contains(out, w) {
+			t.Errorf("missing %q:\n%s", w, out)
+		}
+	}
+	if out := renderOrch("Daemons (cluster maps)", rows, "osd", "host1", "all", 50); !strings.Contains(out, "Daemons: 2") || strings.Contains(out, "osd.2") {
+		t.Errorf("filters:\n%s", out)
 	}
 }

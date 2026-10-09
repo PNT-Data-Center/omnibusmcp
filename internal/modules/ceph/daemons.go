@@ -33,35 +33,124 @@ func (m *Module) daemonsTool(ctx context.Context, env *registry.Env, in daemonsI
 	}
 	s := m.site(env)
 	var (
-		orch             []orchDaemon
-		vs               versions
-		orchErr, vsErr   error
-		st               clusterStatus
-		stErr            error
-		fsSt             fsStatus
-		fsErr            error
-		wg               sync.WaitGroup
-		run              = func(f func()) { wg.Add(1); go func() { defer wg.Done(); f() }() }
-		limit            = clampLimit(in.Limit, 50, 500)
-		header, fallback string
+		orch           []orchDaemon
+		vs             versions
+		orchErr, vsErr error
+		st             clusterStatus
+		mons           monDump
+		mgr            mgrDump
+		tree           osdDF
+		fsSt           fsStatus
+		stErr, monErr  error
+		mgrErr, trErr  error
+		fsErr          error
+		wg             sync.WaitGroup
+		run            = func(f func()) { wg.Add(1); go func() { defer wg.Done(); f() }() }
+		limit          = clampLimit(in.Limit, 50, 500)
 	)
 	run(func() { orchErr = query(ctx, env, s, &orch, "orch", "ps") })
 	run(func() { vsErr = query(ctx, env, s, &vs, "versions") })
 	wg.Wait()
 
 	if orchErr == nil {
-		header = renderVersions(vs, vsErr)
-		return header + "\n" + renderOrch(orch, in.Type, in.Host, state, limit), nil
+		return renderVersions(vs, vsErr) + "\n" + renderOrch("Daemons (orchestrator)", orch, in.Type, in.Host, state, limit), nil
 	}
-	// No orchestrator (packages, e.g. Proxmox VE): what the maps tell.
+	// No orchestrator (packages, e.g. Proxmox VE): the daemons the cluster
+	// maps know, filtered the same way.
 	run(func() { stErr = query(ctx, env, s, &st, "status") })
+	run(func() { monErr = query(ctx, env, s, &mons, "mon", "dump") })
+	run(func() { mgrErr = query(ctx, env, s, &mgr, "mgr", "dump") })
+	run(func() { trErr = query(ctx, env, s, &tree, "osd", "tree") })
 	run(func() { fsErr = query(ctx, env, s, &fsSt, "fs", "status") })
 	wg.Wait()
 	if stErr != nil {
 		return "", stErr
 	}
-	fallback = fmt.Sprintf("No orchestrator (%s): daemons as seen in the cluster maps; per-host detail: ceph_local on each host.\n\n", lastLine(orchErr.Error()))
-	return fallback + renderVersions(vs, vsErr) + "\n" + renderMaps(st, fsSt, fsErr), nil
+	var notes []string
+	for name, err := range map[string]error{"monitors": monErr, "managers": mgrErr, "OSDs": trErr, "MDS": fsErr} {
+		if err != nil && failKind(err) != failCommand {
+			notes = append(notes, fmt.Sprintf("%s unknown: %v", name, err))
+		}
+	}
+	rows := mapDaemons(st, mons, monErr, mgr, mgrErr, tree, trErr, fsSt, fsErr)
+	out := fmt.Sprintf("No orchestrator (%s): daemons from the cluster maps (hosts known for OSDs only); per-host detail: ceph_local on each host.\n\n", lastLine(orchErr.Error())) +
+		renderVersions(vs, vsErr) + "\n" + renderOrch("Daemons (cluster maps)", rows, in.Type, in.Host, state, limit)
+	sort.Strings(notes)
+	for _, n := range notes {
+		out += n + "\n"
+	}
+	return out, nil
+}
+
+// mgrDump is the part of "ceph mgr dump" naming the managers.
+type mgrDump struct {
+	ActiveName string `json:"active_name"`
+	Available  bool   `json:"available"`
+	Standbys   []struct {
+		Name string `json:"name"`
+	} `json:"standbys"`
+}
+
+// mapDaemons lists the daemons the monitor, manager, OSD and MDS maps know,
+// as orchestrator entries (status 1 running, -1 not).
+func mapDaemons(st clusterStatus, mons monDump, monErr error, mgr mgrDump, mgrErr error, tree osdDF, trErr error, fs fsStatus, fsErr error) []orchDaemon {
+	var out []orchDaemon
+	add := func(typ, name, host string, ok bool, desc string) {
+		d := orchDaemon{DaemonName: typ + "." + name, DaemonType: typ, Hostname: firstNonEmpty(host, "-"), Status: -1, StatusDesc: desc}
+		if ok {
+			d.Status = 1
+		}
+		out = append(out, d)
+	}
+	if monErr == nil {
+		inQ := map[string]bool{}
+		for _, q := range st.QuorumNames {
+			inQ[q] = true
+		}
+		for _, m := range mons.Mons {
+			desc := "in quorum"
+			if !inQ[m.Name] {
+				desc = "OUT OF QUORUM"
+			}
+			add("mon", m.Name, "", inQ[m.Name], desc)
+		}
+	}
+	if mgrErr == nil {
+		if mgr.ActiveName != "" {
+			add("mgr", mgr.ActiveName, "", mgr.Available, "active")
+		}
+		for _, sb := range mgr.Standbys {
+			add("mgr", sb.Name, "", true, "standby")
+		}
+	}
+	if trErr == nil {
+		host := map[int]string{}
+		for _, n := range tree.Nodes {
+			if n.Type == "host" {
+				for _, c := range n.Children {
+					host[c] = n.Name
+				}
+			}
+		}
+		for _, n := range tree.Nodes {
+			if n.Type != "osd" {
+				continue
+			}
+			desc := n.Status
+			if n.Reweight == 0 {
+				desc += ", out"
+			}
+			out = append(out, orchDaemon{DaemonName: n.Name, DaemonType: "osd", Hostname: firstNonEmpty(host[n.ID], "-"),
+				Status: map[bool]int{true: 1, false: -1}[n.Status == "up"], StatusDesc: desc})
+		}
+	}
+	if fsErr == nil {
+		for _, d := range fs.MDSMap {
+			ok := d.State == "active" || strings.HasPrefix(d.State, "standby")
+			add("mds", strings.TrimPrefix(d.Name, "mds."), "", ok, d.State)
+		}
+	}
+	return out
 }
 
 // renderVersions lists the versions per daemon type and flags mixed ones.
@@ -91,7 +180,7 @@ func renderVersions(vs versions, err error) string {
 	return b.String()
 }
 
-func renderOrch(orch []orchDaemon, typ, host, state string, limit int) string {
+func renderOrch(title string, orch []orchDaemon, typ, host, state string, limit int) string {
 	var b strings.Builder
 	byType := map[string][2]int{} // running, total
 	var shown []orchDaemon
@@ -110,7 +199,7 @@ func renderOrch(orch []orchDaemon, typ, host, state string, limit int) string {
 		}
 		shown = append(shown, d)
 	}
-	b.WriteString("Daemons (orchestrator):\n")
+	b.WriteString(title + ":\n")
 	for _, t := range sortedKeys(byType) {
 		c := byType[t]
 		note := ""
@@ -120,11 +209,11 @@ func renderOrch(orch []orchDaemon, typ, host, state string, limit int) string {
 		fmt.Fprintf(&b, "  %-14s %d/%d running%s\n", t, c[0], c[1], note)
 	}
 	sort.Slice(shown, func(i, j int) bool { return daemonLess(shown[i].DaemonName, shown[j].DaemonName) })
-	title := "Daemons not running"
+	list := "Daemons not running"
 	if state == "all" {
-		title = "Daemons"
+		list = "Daemons"
 	}
-	fmt.Fprintf(&b, "\n%s: %d\n", title, len(shown))
+	fmt.Fprintf(&b, "\n%s: %d\n", list, len(shown))
 	if len(shown) == 0 {
 		return b.String()
 	}
@@ -168,28 +257,4 @@ type fsStatus struct {
 		Used  int64  `json:"used"`
 		Avail int64  `json:"avail"`
 	} `json:"pools"`
-}
-
-// renderMaps shows the daemons known from the monitor, manager and MDS maps.
-func renderMaps(st clusterStatus, fs fsStatus, fsErr error) string {
-	var b strings.Builder
-	fmt.Fprintf(&b, "Monitors: %d, in quorum: %s\n", st.Monmap.NumMons, strings.Join(st.QuorumNames, ", "))
-	if st.Mgrmap.Available {
-		fmt.Fprintf(&b, "Managers: active manager available, %d standby\n", st.Mgrmap.NumStandbys)
-	} else {
-		b.WriteString("Managers: NO ACTIVE MANAGER\n")
-	}
-	o := st.Osdmap
-	fmt.Fprintf(&b, "OSDs:     %d, %d up, %d in (details: ceph_osds)\n", o.NumOSDs, o.NumUpOSDs, o.NumInOSDs)
-	if fsErr == nil && len(fs.MDSMap) > 0 {
-		var mds []string
-		for _, d := range fs.MDSMap {
-			mds = append(mds, d.Name+" "+d.State)
-		}
-		fmt.Fprintf(&b, "MDS:      %s\n", strings.Join(mds, ", "))
-	}
-	if svc := st.Mgrmap.Services; len(svc) > 0 {
-		fmt.Fprintf(&b, "Manager services: %s\n", strings.Join(sortedKeys(svc), ", "))
-	}
-	return b.String()
 }

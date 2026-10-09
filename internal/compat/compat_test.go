@@ -76,7 +76,7 @@ func TestParseOSRelease(t *testing.T) {
 }
 
 func TestCephTested(t *testing.T) {
-	if !Assess(Ceph, "18.2.1").Tested || Assess(Ceph, "19.2.3").Tested {
+	if !Assess(Ceph, "18.2.1").Tested || !Assess(Ceph, "20.2.2").Tested || Assess(Ceph, "19.2.3").Tested {
 		t.Fatal("Ceph tested table")
 	}
 }

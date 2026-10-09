@@ -69,7 +69,7 @@ func (m *Module) Tools(env *registry.Env) []registry.Tool {
 				return limit(out), err
 			}),
 		registry.NewTool("ceph_logs", "Ceph logs on this host",
-			"Logs kept on this host, from files (package installations) or the journal (cephadm): source cluster (the cluster log; only on hosts with a monitor), audit (commands run against the cluster; secret values masked), or a daemon of this host (osd.3, mon.host1...; list: ceph_local). Default level warn shows warnings and errors only; also error or all. Optional grep text, lines.",
+			"Logs kept on this host, from files (package installations) or the journal (cephadm): source cluster (the cluster log; only on hosts with a monitor; with cephadm only when mon_cluster_log_to_file is enabled), audit (commands run against the cluster, changes at info level; secret values masked), or a daemon of this host (osd.3, mon.host1...; list: ceph_local). Levels: error, warn (default), info (default for audit), all. Optional grep text, lines.",
 			ro, true, func(ctx context.Context, in logsInput) (string, error) {
 				out, err := m.logsTool(ctx, env, in)
 				return limit(out), err
