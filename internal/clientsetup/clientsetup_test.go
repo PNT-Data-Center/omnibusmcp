@@ -27,10 +27,7 @@ func TestTargetNames(t *testing.T) {
 // Generated commands must parse in the shells clients use.
 func TestScriptsParse(t *testing.T) {
 	tg := Target{Host: "192.0.2.10", Port: "8765"}
-	for _, script := range []string{
-		tg.SystemTrust("AA:BB"), tg.UserTrust("AA:BB"),
-		tg.SystemTrust(""), tg.UserTrust(""),
-	} {
+	for _, script := range []string{tg.NodeTrust(), tg.DebianTrust(), tg.RHELTrust(), NodeEnv + "\n", tg.ExportToken() + "\n", tg.ClaudeAdd() + "\n"} {
 		for _, sh := range []string{"sh", "bash"} {
 			if _, err := exec.LookPath(sh); err != nil {
 				continue
@@ -44,36 +41,40 @@ func TestScriptsParse(t *testing.T) {
 	}
 }
 
-// With a fingerprint the commands refuse a mismatch; without one (the
-// landing page) they need neither the check nor openssl.
-func TestFingerprintCheck(t *testing.T) {
+func TestTrustCommands(t *testing.T) {
 	tg := Target{Host: "192.0.2.10", Port: "8765"}
-	for _, script := range []string{tg.SystemTrust("AA:BB"), tg.UserTrust("AA:BB")} {
-		if !strings.Contains(script, `!= "AA:BB"`) || !strings.Contains(script, "FINGERPRINT MISMATCH") {
-			t.Errorf("checked script:\n%s", script)
-		}
+	want := map[string]string{
+		tg.NodeTrust(): `d="$HOME/.config/omnibusmcp"; mkdir -p "$d"
+curl -fsSk https://192.0.2.10:8765/ca.pem -o "$d/ca-192.0.2.10.pem"
+cat "$d"/ca-*.pem > "$d/ca-bundle.pem"
+`,
+		tg.DebianTrust(): "sudo curl -fsSk https://192.0.2.10:8765/ca.pem -o /usr/local/share/ca-certificates/omnibusmcp-192.0.2.10.crt && sudo update-ca-certificates\n",
+		tg.RHELTrust():   "sudo curl -fsSk https://192.0.2.10:8765/ca.pem -o /etc/pki/ca-trust/source/anchors/omnibusmcp-192.0.2.10.pem && sudo update-ca-trust\n",
 	}
-	for _, script := range []string{tg.SystemTrust(""), tg.UserTrust("")} {
-		if strings.Contains(script, "openssl") || strings.Contains(script, "FINGERPRINT") {
-			t.Errorf("unchecked script:\n%s", script)
+	for got, w := range want {
+		if got != w {
+			t.Errorf("got:\n%s\nwant:\n%s", got, w)
 		}
 	}
 }
 
+// The CLI and the landing page show the same steps.
 func TestLandingPage(t *testing.T) {
 	tg := Target{Host: "192.0.2.10", Port: "8765"}
-	want := `## OmnibusMCP
-MCP endpoint: https://192.0.2.10:8765/mcp  (Streamable HTTP, header "Authorization: Bearer <token>")
-
-## Install OmnibusMCP on the client
-1. Trust the server's certificate https://192.0.2.10:8765/ca.pem
-2. Token: ask the administrator (on the server: sudo cat /etc/omnibusmcp/token).
-3. Add OmnibusMCP to your agent
-`
-	if got := LandingPage(tg, true, "/etc/omnibusmcp/token"); got != want {
-		t.Errorf("page:\n%s\nwant:\n%s", got, want)
+	page := LandingPage(tg, true, "/etc/omnibusmcp/token")
+	if !strings.HasPrefix(page, "# OmnibusMCP\nEndpoint MCP: https://192.0.2.10:8765/mcp") ||
+		!strings.HasSuffix(page, Instructions(tg, "/etc/omnibusmcp/token")) {
+		t.Errorf("page:\n%s", page)
 	}
-	if p := LandingPage(tg, false, "/t"); strings.Contains(p, "ca.pem") || !strings.Contains(p, "administrator") {
+	for _, want := range []string{tg.NodeTrust(), NodeEnv, tg.DebianTrust(), tg.RHELTrust(), "sudo cat /etc/omnibusmcp/token", tg.ExportToken(), tg.ClaudeAdd()} {
+		if !strings.Contains(page, want) {
+			t.Errorf("page lacks %q", want)
+		}
+	}
+	if strings.Contains(page, "openssl") {
+		t.Error("page still checks a fingerprint")
+	}
+	if p := LandingPage(tg, false, "/t"); strings.Contains(p, "ca.pem") || !strings.Contains(p, "administratora") {
 		t.Errorf("page without an OmnibusMCP CA:\n%s", p)
 	}
 }

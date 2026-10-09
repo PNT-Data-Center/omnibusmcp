@@ -10,7 +10,7 @@ Serwer OmnibusMCP używa **jednorazowego lokalnego CA** zamiast certyfikatów se
 1. W pamięci tworzony jest lokalny CA (CN „OmnibusMCP CA <host>", O „OmnibusMCP", bez ograniczeń nazw)
 2. CA podpisuje certyfikat serwera
 3. **Klucz CA jest natychmiast odrzucany** — nigdy nie trafia na dysk, więc nikt (nawet root) nie może wydać dodatkowych certyfikatów pod tym CA
-4. Klienci ufają temu CA (do pobrania z `https://HOST:8765/ca.pem`, z obowiązkowym sprawdzeniem odcisku); certyfikat serwera jest ważny domyślnie 5 lat
+4. Klienci ufają temu CA (do pobrania z `https://HOST:8765/ca.pem`; zaufanie przy pierwszym użyciu, patrz niżej); certyfikat serwera jest ważny domyślnie 5 lat
 5. Odnowienie tworzy **nowy CA** (klucza poprzedniego już nie ma) — klienci muszą mu zaufać ponownie: na serwerze `omnibusmcp tls client-setup`, na klientach wypisane polecenia; zdarza się to rzadko (domyślnie co ~5 lat)
 
 ## Generowanie certyfikatu
@@ -37,23 +37,22 @@ sudo omnibusmcp tls generate --force
 Po wygenerowaniu wypisane są:
 - **Ważność**: data wygaśnięcia i liczba dni
 - **SAN (Subject Alternative Names)**: hostnames i adresy IP w certyfikacie
-- **Odcisk SHA-256 CA**: do weryfikacji przez klienta
 - **Instrukcje dla klientów**: polecenia do `omnibusmcp tls client-setup`
 
 ## Pobieranie CA przez klienta
 
-Serwer udostępnia publiczny certyfikat CA w endpoincie:
+Serwer udostępnia publiczny certyfikat CA w endpoincie `/ca.pem`. Polecenia z `client-setup` pobierają go przez `curl -k`, czyli bez weryfikacji połączenia TLS, i od razu dodają do zaufanych. Zaufanie jest więc **przy pierwszym użyciu** (trust on first use, TOFU): klient ufa CA z pierwszego pobrania, bez sprawdzenia, że pochodzi od właściwego serwera.
+
+Opcjonalnie można ręcznie porównać odcisk SHA-256 pobranego CA z odciskiem z konsoli serwera:
 
 ```bash
-# Na kliencie: pobierz CA i porównaj odcisk
+# Na kliencie: pobierz CA i wypisz odcisk
 curl -k https://HOST:8765/ca.pem > ~/ca.pem
 openssl x509 -in ~/ca.pem -noout -fingerprint -sha256
-# Porównaj wynik z wynikiem: sudo omnibusmcp tls status (na serwerze)
+# Na serwerze: odcisk CA (sudo omnibusmcp tls status)
 ```
 
-Certyfikat CA pobierany jest przez jeszcze niezweryfikowane połączenie TLS (`-k` pomija weryfikację), dlatego bezpieczeństwo zapewnia wyłącznie **porównanie odcisku SHA-256** z wartością odczytaną na serwerze przez zaufany kanał (np. SSH).
-
-## Konfiguracja klienta: `omnibusmcp tls client-setup`
+Porównanie ma sens przede wszystkim w sieci, której nie ufasz, i tylko wtedy, gdy odczyt z serwera idzie zaufanym kanałem (konsola, sesja SSH). Szczegóły ryzyka: [Bezpieczeństwo](security.md).
 
 Polecenie `omnibusmcp tls client-setup` (uruchomione na serwerze) wypisuje gotowe do skopiowania polecenia dla klienta:
 
@@ -61,28 +60,14 @@ Polecenie `omnibusmcp tls client-setup` (uruchomione na serwerze) wypisuje gotow
 sudo omnibusmcp tls client-setup --host 192.0.2.10
 ```
 
-Wynik zawiera:
-1. **Ścieżkę do CA** (https://192.0.2.10:8765/ca.pem) i odcisk SHA-256
-2. **Blok dla klientów Linux** — skrypt pobierający CA, weryfikujący odcisk i instalujący w systemowym magazynie zaufania (`update-ca-certificates` lub `update-ca-trust`); działa dla Claude Code, curl i większości narzędzi
-3. **Wariant bez root dla Node.js** — zapisuje CA do `~/.config/omnibusmcp/ca-<host>.pem` i buduje `~/.config/omnibusmcp/ca-bundle.pem` dla `NODE_EXTRA_CA_CERTS`
-4. **Token**: gdzie go znaleźć na serwerze (`sudo cat /etc/omnibusmcp/token`) i jak udostępnić go na kliencie przez zmienną z nazwą zależną od hosta (np. `OMNIBUS_TOKEN_192_0_2_10`)
-5. **Polecenie do Claude Code**: dokładna komenda `claude mcp add` z tokenem jako zmienną (nie jawnym tekstem)
+Wynik to instrukcja w trzech krokach, ta sama, którą serwer podaje pod adresem `/` (patrz [Podłączenie klienta](clients.md)):
+1. **Zaufanie do certyfikatu serwera** — dwa warianty: dla klientów Node.js bez sudo (zapis CA do `~/.config/omnibusmcp/` i zmienna `NODE_EXTRA_CA_CERTS`) oraz dla reszty systemu z sudo (`update-ca-certificates` na Debian/Ubuntu, `update-ca-trust` na RHEL/AlmaLinux)
+2. **Token** — skąd wziąć go na serwerze (`sudo cat /etc/omnibusmcp/token`) i jak udostępnić na kliencie przez zmienną z nazwą zależną od hosta (np. `OMNIBUS_TOKEN_192_0_2_10`)
+3. **Claude Code** — polecenie `claude mcp add` z tokenem jako zmienną (nie jawnym tekstem)
 
 ## Strona z instrukcją pod adresem głównym
 
-Pod `https://HOST:8765/` serwer zwraca bez tokenu krótką instrukcję w formacie Markdown, po angielsku (`curl -k https://HOST:8765/` lub przeglądarka):
-
-```
-## OmnibusMCP
-MCP endpoint: https://192.0.2.10:8765/mcp  (Streamable HTTP, header "Authorization: Bearer <token>")
-
-## Install OmnibusMCP on the client
-1. Trust the server's certificate https://192.0.2.10:8765/ca.pem
-2. Token: ask the administrator (on the server: sudo cat /etc/omnibusmcp/token).
-3. Add OmnibusMCP to your agent
-```
-
-Gotowe polecenia (z automatycznym sprawdzeniem odcisku) wypisuje `omnibusmcp tls client-setup` na serwerze. Adresy na stronie używają nazwy hosta, pod którą klient się połączył (nagłówek `Host`, odrzucany przy nietypowych znakach); ścieżka tokenu pochodzi z konfiguracji.
+Pod `https://HOST:8765/` serwer zwraca bez tokenu instrukcję w formacie Markdown, po polsku (`curl -k https://HOST:8765/` lub przeglądarka). Na początku jest adres MCP, a dalej te same kroki co w `omnibusmcp tls client-setup` (zaufanie do certyfikatu, token, Claude Code), z adresem hosta, pod którym klient się połączył. Adresy na stronie używają nazwy hosta, pod którą klient się połączył (nagłówek `Host`, odrzucany przy nietypowych znakach); ścieżka tokenu pochodzi z konfiguracji.
 
 ## Migracja ze starych certyfikatów self-signed
 

@@ -334,8 +334,7 @@ func Handler(s *mcp.Server, token string, a *audit.Logger, pub *Public) http.Han
 
 // CAPath is where clients download the local CA certificate. It needs no
 // token: the certificate is public (the server sends it in every TLS
-// handshake). Clients must still compare its fingerprint with the one shown
-// by "omnibusmcp tls client-setup" before trusting it.
+// handshake). Clients trust it on first use.
 const CAPath = clientsetup.CAPath
 
 // landingHandler serves instructions for new clients at "/": what this

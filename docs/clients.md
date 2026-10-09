@@ -4,48 +4,78 @@ Serwer musi nasłuchiwać na adresie sieciowym z włączonym TLS (`listen: <IP>:
 
 ## Przygotowanie klienta: `omnibusmcp tls client-setup`
 
-Serwer ma certyfikat podpisany przez własne, jednorazowe CA (patrz [HTTPS / TLS](tls.md)). Klient musi raz zaufać temu CA. Gotowe polecenia wypisuje serwer:
+Serwer ma certyfikat podpisany przez własne, jednorazowe CA (patrz [HTTPS / TLS](tls.md)). Klient musi raz zaufać temu CA i dostać token. Gotowe polecenia wypisuje serwer:
 
 ```bash
 sudo omnibusmcp tls client-setup            # adres z listen; inny: --host host.example.com
 ```
 
-Wynik zawiera odcisk SHA-256 CA i polecenia do wklejenia na kliencie. Kopiuj je **z konsoli serwera** (np. sesji SSH): CA jest pobierane przez jeszcze niezaufane połączenie (`curl -k`), więc bezpieczeństwo zapewnia wyłącznie porównanie z odciskiem wpisanym w polecenie. Przy niezgodności polecenie kończy się błędem `FINGERPRINT MISMATCH` i niczego nie dodaje.
+Ta sama instrukcja jest pod adresem głównym serwera (`curl -k https://192.0.2.10:8765/` albo przeglądarka), bez tokenu i bez dostępu do serwera. Poniżej jest ten sam tekst, dla adresu `192.0.2.10`.
 
-Bez dostępu do serwera skróconą instrukcję pokazuje sam serwer pod adresem głównym — `curl -k https://192.0.2.10:8765/` albo przeglądarka (z wyjątkiem dla niezaufanego certyfikatu): adres MCP, adres certyfikatu CA (`/ca.pem`) do dodania do zaufanych, skąd wziąć token i przypomnienie o dodaniu serwera do agenta. Gotowe polecenia (poniżej) wypisuje `client-setup` na serwerze.
+Polecenia pobierają CA bez sprawdzania odcisku (trust on first use). Zasady bezpieczeństwa i opcjonalne ręczne porównanie odcisku: [HTTPS / TLS](tls.md) i [Bezpieczeństwo](security.md).
 
-**1. Zaufanie do CA — systemowy magazyn** (Linux: Debian/Ubuntu, RHEL/AlmaLinux; wymaga `curl`, `openssl` oraz roota lub `sudo`). Działa dla Claude Code, `curl` i większości narzędzi. Przykład (adres 192.0.2.10, odcisk skrócony):
+### 1. Zaufanie do certyfikatu serwera
 
-```bash
-( set -e
-  f=$(mktemp); trap 'rm -f "$f"' EXIT
-  curl -fsSk https://192.0.2.10:8765/ca.pem -o "$f"
-  fp=$(openssl x509 -in "$f" -noout -fingerprint -sha256 | cut -d= -f2)
-  if [ "$fp" != "AA:BB:CC:…" ]; then echo "FINGERPRINT MISMATCH ($fp): CA NOT trusted" >&2; exit 1; fi
-  s=sudo; [ "$(id -u)" -eq 0 ] && s=
-  if [ -d /usr/local/share/ca-certificates ]; then
-    $s install -m 0644 "$f" /usr/local/share/ca-certificates/omnibusmcp-192.0.2.10.crt && $s update-ca-certificates
-  else
-    $s install -m 0644 "$f" /etc/pki/ca-trust/source/anchors/omnibusmcp-192.0.2.10.pem && $s update-ca-trust
-  fi
-  echo "OK: OmnibusMCP CA of 192.0.2.10 is trusted" )
-```
-
-**1b. Zaufanie bez roota — tylko klienci oparci na Node.js** (Gemini CLI, most `mcp-remote`). Polecenie zapisuje CA w `~/.config/omnibusmcp/` i odbudowuje wspólny plik `ca-bundle.pem` (zmienna `NODE_EXTRA_CA_CERTS` przyjmuje jeden plik, a w pakiecie mieszczą się CA wielu serwerów); następnie w profilu powłoki:
+#### Gemini CLI i inne klienty Node.js (bez sudo)
 
 ```bash
-export NODE_EXTRA_CA_CERTS=~/.config/omnibusmcp/ca-bundle.pem
+d="$HOME/.config/omnibusmcp"; mkdir -p "$d"
+curl -fsSk https://192.0.2.10:8765/ca.pem -o "$d/ca-192.0.2.10.pem"
+cat "$d"/ca-*.pem > "$d/ca-bundle.pem"
 ```
 
-Natywny Claude Code wymaga wariantu 1: certyfikatu self-signed nie przyjmuje w żadnej konfiguracji, a CA z `NODE_EXTRA_CA_CERTS` przyjmuje, ale magazyn systemowy działa bez dodatkowych zmiennych.
+W `~/.bashrc` wystarczy raz dodać (jedna linia dla wszystkich serwerów):
 
-**2. Token.** Na serwerze: `sudo cat /etc/omnibusmcp/token`. Każdy serwer ma własny token, więc zmienna ma nazwę zależną od hosta (`OMNIBUS_TOKEN_` + adres lub nazwa wielkimi literami, znaki inne niż litery i cyfry zamienione na `_`). Na kliencie zapisz token do pliku 0600 bez umieszczania w historii powłoki i udostępniaj przez zmienną:
+```bash
+export NODE_EXTRA_CA_CERTS="$HOME/.config/omnibusmcp/ca-bundle.pem"
+```
+
+#### Claude Code, curl i reszta systemu (sudo)
+
+Debian/Ubuntu:
+
+```bash
+sudo curl -fsSk https://192.0.2.10:8765/ca.pem -o /usr/local/share/ca-certificates/omnibusmcp-192.0.2.10.crt && sudo update-ca-certificates
+```
+
+RHEL/AlmaLinux:
+
+```bash
+sudo curl -fsSk https://192.0.2.10:8765/ca.pem -o /etc/pki/ca-trust/source/anchors/omnibusmcp-192.0.2.10.pem && sudo update-ca-trust
+```
+
+Po odnowieniu certyfikatu na serwerze powtórz te same polecenia.
+
+### 2. Token
+
+Na serwerze:
+
+```bash
+sudo cat /etc/omnibusmcp/token
+```
+
+Na kliencie zapisz go w `~/.config/omnibusmcp/192.0.2.10.token` (chmod 600) i dodaj do `~/.bashrc`:
+
+```bash
+export OMNIBUS_TOKEN_192_0_2_10="$(cat ~/.config/omnibusmcp/192.0.2.10.token)"
+```
+
+Bezpieczniejszy zapis tokena: wartość nie pojawia się na ekranie ani w historii powłoki (plik dostaje tryb 0600 od razu):
 
 ```bash
 install -d -m 700 ~/.config/omnibusmcp
 ( umask 077; read -rsp 'Token: ' T && printf '%s\n' "$T" > ~/.config/omnibusmcp/192.0.2.10.token; echo )
-export OMNIBUS_TOKEN_192_0_2_10="$(cat ~/.config/omnibusmcp/192.0.2.10.token)"   # np. w ~/.bashrc
 ```
+
+### 3. Claude Code
+
+```bash
+claude mcp add --transport http --scope user 192-0-2-10 https://192.0.2.10:8765/mcp --header 'Authorization: Bearer ${OMNIBUS_TOKEN_192_0_2_10}'
+```
+
+Sprawdzenie: `claude mcp list`.
+
+Szczegóły, w tym dlaczego nagłówek musi być w apostrofach, opisane są w sekcji [Claude Code](#claude-code) poniżej.
 
 ## Claude Code
 
@@ -74,7 +104,7 @@ Ten sam wpis można zapisać ręcznie w `.mcp.json` projektu:
 
 ## Gemini CLI
 
-Gemini CLI działa na Node.js: zaufanie przez wariant 1b (`NODE_EXTRA_CA_CERTS`) albo systemowy magazyn, jeśli Node.js go używa w danej instalacji.
+Gemini CLI działa na Node.js: zaufanie przez `NODE_EXTRA_CA_CERTS` (krok 1, „Gemini CLI i inne klienty Node.js”) albo systemowy magazyn, jeśli Node.js go używa w danej instalacji.
 
 Plik `~/.gemini/settings.json` (dopisz do istniejącej konfiguracji):
 
@@ -114,7 +144,7 @@ gemini mcp add --transport http --scope user omnibus https://HOST:8765/mcp \
 }
 ```
 
-Zaufanie do CA: najpierw wariant 1 (systemowy magazyn); jeśli Cursor nadal odrzuca certyfikat, spróbuj uruchomić go z `NODE_EXTRA_CA_CERTS=~/.config/omnibusmcp/ca-bundle.pem` (wariant 1b).
+Zaufanie do CA: najpierw systemowy magazyn (krok 1, „Claude Code, curl i reszta systemu”); jeśli Cursor nadal odrzuca certyfikat, spróbuj uruchomić go z `NODE_EXTRA_CA_CERTS=~/.config/omnibusmcp/ca-bundle.pem` (krok 1, „Gemini CLI i inne klienty Node.js”).
 
 ## Antigravity
 
@@ -147,13 +177,13 @@ Antigravity łączy się z serwerami zdalnymi tylko przez pole `serverUrl`, bez 
 | Transport | **Streamable HTTP** (w konfiguracji często `http` / `streamable-http`); klienci obsługujący tylko starszy transport SSE się nie połączą |
 | URL | `https://HOST:8765/mcp` |
 | Nagłówek | `Authorization: Bearer <token>` (schemat `Bearer` bez rozróżniania wielkości liter) |
-| TLS | zaufanie do CA serwera (`https://HOST:8765/ca.pem`, odcisk z `omnibusmcp tls client-setup`): magazyn systemowy lub mechanizm klienta; minimum TLS 1.2 |
+| TLS | zaufanie do CA serwera (`https://HOST:8765/ca.pem`, polecenia z `omnibusmcp tls client-setup`): magazyn systemowy lub mechanizm klienta; minimum TLS 1.2 |
 | Klient tylko stdio | most `mcp-remote` jak w sekcji Antigravity |
 
 Po podłączeniu klient powinien widzieć 12 narzędzi przy samym module `linux` (11 narzędzi modułu i `health_summary`, Tier 1); kolejne moduły dodają swoje. Każde wywołanie jest widoczne na serwerze w `/var/log/omnibusmcp/audit.log` razem z adresem IP klienta.
 
 ## Po odnowieniu certyfikatu
 
-Certyfikat serwera jest ważny 5 lat. Odnowienie — automatyczne (timer `omnibusmcp-tls-renew`, ok. 30 dni przed wygaśnięciem) lub ręczne (`sudo omnibusmcp tls renew --force`), a także zmiana nazw hosta (`tls generate --force --hosts …`) — tworzy **nowe CA**, bo klucz poprzedniego nie istnieje. Klienci przestają wtedy ufać serwerowi: uruchom ponownie `sudo omnibusmcp tls client-setup` na serwerze i wykonaj krok 1 (lub 1b) na każdym kliencie. `health_summary` ostrzega (`server/tls: WARN`) 30 dni przed wygaśnięciem.
+Certyfikat serwera jest ważny 5 lat. Odnowienie — automatyczne (timer `omnibusmcp-tls-renew`, ok. 30 dni przed wygaśnięciem) lub ręczne (`sudo omnibusmcp tls renew --force`), a także zmiana nazw hosta (`tls generate --force --hosts …`) — tworzy **nowe CA**, bo klucz poprzedniego nie istnieje. Klienci przestają wtedy ufać serwerowi: uruchom ponownie `sudo omnibusmcp tls client-setup` na serwerze i wykonaj krok 1 na każdym kliencie. `health_summary` ostrzega (`server/tls: WARN`) 30 dni przed wygaśnięciem.
 
 Certyfikatów wystawionych przez inne CA (np. firmowe) OmnibusMCP nie odnawia ani nie zastępuje.

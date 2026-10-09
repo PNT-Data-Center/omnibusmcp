@@ -63,45 +63,57 @@ func (t Target) ExportToken() string {
 	return fmt.Sprintf(`export %s="$(cat %s)"`, t.TokenVar(), t.TokenFile())
 }
 
-// SystemTrust adds the CA to the system trust store. With a fingerprint it
-// first compares the download with it and refuses a mismatch; without one
-// it trusts whatever the server sends (trust on first use). It runs in a
-// subshell, so "set -e" and "exit" never close the user's terminal.
-func (t Target) SystemTrust(fingerprint string) string {
-	return fmt.Sprintf(`( set -e
-  f=$(mktemp); trap 'rm -f "$f"' EXIT
-  curl -fsSk %[1]s -o "$f"
-%[2]s  s=sudo; [ "$(id -u)" -eq 0 ] && s=
-  if [ -d /usr/local/share/ca-certificates ]; then
-    $s install -m 0644 "$f" /usr/local/share/ca-certificates/omnibusmcp-%[3]s.crt && $s update-ca-certificates
-  else
-    $s install -m 0644 "$f" /etc/pki/ca-trust/source/anchors/omnibusmcp-%[3]s.pem && $s update-ca-trust
-  fi
-  echo "OK: OmnibusMCP CA of %[4]s is trusted" )
-`, t.CAURL(), fingerprintCheck(fingerprint, `"$f"`, ""), t.FileName(), t.Host)
+// NodeTrust keeps the CA in the user's config directory and rebuilds one
+// bundle for all servers, since NODE_EXTRA_CA_CERTS takes a single file.
+// No sudo needed; it serves Node.js-based clients only.
+func (t Target) NodeTrust() string {
+	return fmt.Sprintf(`d="$HOME/.config/omnibusmcp"; mkdir -p "$d"
+curl -fsSk %s -o "$d/ca-%s.pem"
+cat "$d"/ca-*.pem > "$d/ca-bundle.pem"
+`, t.CAURL(), t.FileName())
 }
 
-// fingerprintCheck is the script line refusing a CA whose SHA-256 differs
-// from fingerprint ("" when there is nothing to compare with).
-func fingerprintCheck(fingerprint, file, cleanup string) string {
-	if fingerprint == "" {
-		return ""
-	}
-	return fmt.Sprintf(`  fp=$(openssl x509 -in %[1]s -noout -fingerprint -sha256 | cut -d= -f2)
-  if [ "$fp" != "%[2]s" ]; then %[3]secho "FINGERPRINT MISMATCH ($fp): CA NOT trusted" >&2; exit 1; fi
-`, file, fingerprint, cleanup)
+// DebianTrust adds the CA to the system store on Debian/Ubuntu. curl -f
+// writes nothing on an error, and "&&" then skips the store update.
+func (t Target) DebianTrust() string {
+	return fmt.Sprintf("sudo curl -fsSk %s -o /usr/local/share/ca-certificates/omnibusmcp-%s.crt && sudo update-ca-certificates\n", t.CAURL(), t.FileName())
 }
 
-// UserTrust keeps the CA in the user's config directory and rebuilds one
-// bundle file, since NODE_EXTRA_CA_CERTS takes a single file. The
-// fingerprint works as in SystemTrust.
-func (t Target) UserTrust(fingerprint string) string {
-	return fmt.Sprintf(`( set -e
-  d="$HOME/.config/omnibusmcp"; mkdir -p "$d"; f="$d/ca-%[3]s.pem"
-  curl -fsSk %[1]s -o "$f.new"
-%[2]s  mv "$f.new" "$f"; cat "$d"/ca-*.pem > "$d/ca-bundle.pem"
-  echo "OK. Add to your shell profile: export NODE_EXTRA_CA_CERTS=$d/ca-bundle.pem" )
-`, t.CAURL(), fingerprintCheck(fingerprint, `"$f.new"`, `rm -f "$f.new"; `), t.FileName())
+// RHELTrust adds the CA to the system store on RHEL/AlmaLinux.
+func (t Target) RHELTrust() string {
+	return fmt.Sprintf("sudo curl -fsSk %s -o /etc/pki/ca-trust/source/anchors/omnibusmcp-%s.pem && sudo update-ca-trust\n", t.CAURL(), t.FileName())
+}
+
+// NodeEnv is the one profile line Node.js clients need for every server.
+const NodeEnv = `export NODE_EXTRA_CA_CERTS="$HOME/.config/omnibusmcp/ca-bundle.pem"`
+
+// Instructions are the client setup steps shared by "omnibusmcp tls
+// client-setup", the landing page and the documentation. The CA is
+// downloaded without verification (trust on first use).
+func Instructions(t Target, serverTokenFile string) string {
+	return fmt.Sprintf(`## 1. Zaufanie do certyfikatu serwera
+
+### Gemini CLI i inne klienty Node.js (bez sudo)
+%s
+W ~/.bashrc wystarczy raz dodać (jedna linia dla wszystkich serwerów):
+%s
+
+### Claude Code, curl i reszta systemu (sudo)
+Debian/Ubuntu:
+%s
+RHEL/AlmaLinux:
+%s
+Po odnowieniu certyfikatu na serwerze powtórz te same polecenia.
+
+## 2. Token
+Na serwerze: sudo cat %s
+Na kliencie zapisz go w %s (chmod 600) i dodaj do ~/.bashrc:
+%s
+
+## 3. Claude Code
+%s
+Sprawdzenie: claude mcp list
+`, t.NodeTrust(), NodeEnv, t.DebianTrust(), t.RHELTrust(), serverTokenFile, t.TokenFile(), t.ExportToken(), t.ClaudeAdd())
 }
 
 // ClientHost picks the address clients most likely use: the listen address
@@ -121,19 +133,12 @@ func ClientHost(listen string, sans []string) string {
 	return "localhost"
 }
 
-// LandingPage is the short Markdown page served at "/" over HTTPS to
-// anyone (e.g. "curl -k https://host:8765/"): where the MCP endpoint and
-// the CA are, and the steps a client needs. Ready-made commands are printed
-// by "omnibusmcp tls client-setup" on the server.
+// LandingPage is the page served at "/" over HTTPS to anyone (e.g. "curl
+// -k https://host:8765/"): the MCP endpoint and the client setup steps.
 func LandingPage(t Target, hasCA bool, serverTokenFile string) string {
-	head := fmt.Sprintf("## OmnibusMCP\nMCP endpoint: %s  (Streamable HTTP, header \"Authorization: Bearer <token>\")\n", t.MCPURL())
+	head := fmt.Sprintf("# OmnibusMCP\nEndpoint MCP: %s  (Streamable HTTP, nagłówek \"Authorization: Bearer <token>\")\n", t.MCPURL())
 	if !hasCA {
-		return head + "\nThis server does not use an OmnibusMCP CA; ask its administrator how to trust its certificate.\n"
+		return head + "\nTen serwer nie używa CA OmnibusMCP; zapytaj administratora, jak zaufać jego certyfikatowi.\n"
 	}
-	return head + fmt.Sprintf(`
-## Install OmnibusMCP on the client
-1. Trust the server's certificate %s
-2. Token: ask the administrator (on the server: sudo cat %s).
-3. Add OmnibusMCP to your agent
-`, t.CAURL(), serverTokenFile)
+	return head + "\n" + Instructions(t, serverTokenFile)
 }

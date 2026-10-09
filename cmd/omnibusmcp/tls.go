@@ -28,8 +28,8 @@ const tlsUsage = `Usage:
   omnibusmcp tls status   [--config PATH]
       show validity, hosts and fingerprints of the certificate and the CA
   omnibusmcp tls client-setup [--config PATH] [--host NAME]
-      print commands that make a client trust this server (CA download with
-      fingerprint check) and register it in Claude Code
+      print the client setup steps (trust the CA, token, Claude Code); the
+      same text is served at https://HOST:PORT/
   omnibusmcp tls disable  [--config PATH] [--allow-insecure-remote]
       remove TLS from the config and restart the service (plain HTTP)
 `
